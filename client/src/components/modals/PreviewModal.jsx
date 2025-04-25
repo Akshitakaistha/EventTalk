@@ -1,8 +1,12 @@
+
+
 import React, { useState, useRef } from 'react';
 import FormComponents from '@/components/form-builder/FormComponents';
 import { Icons } from '@/components/ui/ui-icons';
+import { useFormBuilder } from '@/contexts/FormBuilderContext';
 
 const PreviewModal = ({ onClose, formFields, formName }) => {
+  const { formState } = useFormBuilder();
   const [formValues, setFormValues] = useState({});
   const [dragActive, setDragActive] = useState({});
   
@@ -87,7 +91,12 @@ const PreviewModal = ({ onClose, formFields, formName }) => {
       <div className="relative min-h-screen">
         {/* Header bar */}
         <div className="sticky top-0 z-10 bg-white border-b border-gray-200 py-4 px-6 flex items-center justify-between">
-          <h2 className="text-xl font-semibold text-gray-900">Form Preview: {formName}</h2>
+          <h2 className="text-xl font-semibold text-gray-900 me-5">Form Preview: {formName}</h2>
+          {formState.description && (
+              <div className="border-b border-gray px-6 py-4">
+                <p className="text-sm text-gray-600">{formState.description}</p>
+              </div>
+            )}
           <button 
             type="button"
             onClick={onClose}
@@ -369,7 +378,7 @@ const PreviewModal = ({ onClose, formFields, formName }) => {
                       <div className="pt-6">
                         <button
                           type="submit"
-                          className="w-full px-4 py-3 border border-transparent rounded-md shadow-sm text-base font-medium text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500"
+                          className="w-full px-4 py-3 border border-transparent rounded-md shadow-sm text-base font-medium  bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500"
                         >
                           Submit Form
                         </button>
@@ -521,7 +530,7 @@ const PreviewModal = ({ onClose, formFields, formName }) => {
                     <div className="pt-6 col-span-2">
                       <button
                         type="submit"
-                        className="w-full px-4 py-3 border border-transparent rounded-md shadow-sm text-base font-medium text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500"
+                        className="w-full px-4 py-3 border border-transparent rounded-md shadow-sm text-base font-medium bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500"
                       >
                         Submit Form
                       </button>

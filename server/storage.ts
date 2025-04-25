@@ -16,6 +16,7 @@ export interface IStorage {
   createUser(user: InsertUser): Promise<User>;
   getAllUsers(): Promise<User[]>;
   getSuperAdmins(): Promise<User[]>;
+  deleteUser(id: number): Promise<boolean>;  // Added this line
   getAdminsByCreator(superAdminId: number): Promise<User[]>;
   
   // Form operations
@@ -80,6 +81,10 @@ export class MemStorage implements IStorage {
   // User operations
   async getUser(id: number): Promise<User | undefined> {
     return this.userMap.get(id);
+  }
+
+  async deleteUser(id: number): Promise<boolean> {
+    return this.userMap.delete(id);
   }
 
   async getUserByUsername(username: string): Promise<User | undefined> {
@@ -262,6 +267,11 @@ export class DatabaseStorage implements IStorage {
   async getUserByEmail(email: string): Promise<User | undefined> {
     const [user] = await db.select().from(users).where(eq(users.email, email));
     return user;
+  }
+
+  async deleteUser(id: number): Promise<boolean> {
+    await db.delete(users).where(eq(users.id, id));
+    return true;
   }
 
   async createUser(insertUser: InsertUser): Promise<User> {

@@ -1,0 +1,59 @@
+{
+  "title": "Career Drive",
+  "description": "Please fill out the form below to apply for the career drive.",
+  "fields": [
+    {
+      "type": "text",
+      "name": "fullName",
+      "label": "Full Name",
+      "placeholder": "Enter your full name",
+      "required": true
+    },
+    {
+      "type": "email",
+      "name": "email",
+      "label": "Email Address",
+      "placeholder": "Enter your email",
+      "required": true
+    },
+    {
+      "type": "tel",
+      "name": "phone",
+      "label": "Phone Number",
+      "placeholder": "Enter your phone number",
+      "required": true
+    },
+    {
+      "type": "file",
+      "name": "resume",
+      "label": "Upload Resume",
+      "accept": ".pdf,.doc,.docx",
+      "required": true
+    },
+    {
+      "type": "textarea",
+      "name": "coverLetter",
+      "label": "Cover Letter",
+      "placeholder": "Write your cover letter here",
+      "required": false
+    },
+    {
+      "type": "select",
+      "name": "position",
+      "label": "Position Applying For",
+      "options": [
+        { "label": "Software Engineer", "value": "software_engineer" },
+        { "label": "Product Manager", "value": "product_manager" },
+        { "label": "Designer", "value": "designer" },
+        { "label": "Other", "value": "other" }
+      ],
+      "required": true
+    },
+    {
+      "type": "checkbox",
+      "name": "relocate",
+      "label": "Willing to relocate?",
+      "required": false
+    }
+  ]
+}

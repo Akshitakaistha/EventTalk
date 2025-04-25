@@ -31,8 +31,6 @@ export function AuthProvider({ children }) {
           // Validate token by fetching user profile
           try {
             const userData = await apiRequest('GET', '/api/auth/me');
-            
-            console.log('Auth check response:', userData);
             if (userData) {
               // Handle MongoDB response format if present
               const userObject = userData._doc || userData;

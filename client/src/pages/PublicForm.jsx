@@ -360,7 +360,7 @@ const PublicForm = () => {
         </form>
         
         <div className="mt-8 text-center text-sm text-gray-500">
-          <p>Powered by FormCraft</p>
+          <p>Powered by EventTalk</p>
         </div>
       </div>
     </div>

@@ -11,6 +11,7 @@ import UserManagement from "@/pages/UserManagement";
 import PublicForm from "@/pages/PublicForm";
 import Login from "@/pages/Login";
 import Register from "@/pages/Register";
+import Settings from "@/pages/Settings";
 import { useAuth, AuthProvider } from "./contexts/AuthContext";
 import { FormBuilderProvider } from "./contexts/FormBuilderContext";
 
@@ -52,6 +53,7 @@ function Router() {
       <Route path="/responses" component={() => <PrivateRoute component={<ResponsesList />} />} />
       <Route path="/users" component={() => <PrivateRoute component={<UserManagement />} />} />
       <Route path="/public-form/:id" component={({ params }) => <PublicForm id={params.id} />} />
+      <Route path="/settings" component={() => <PrivateRoute component={<Settings />} />} />
       <Route component={NotFound} />
     </Switch>
   );

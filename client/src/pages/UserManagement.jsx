@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useLocation } from "wouter";
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { z } from 'zod';
 import { useForm } from 'react-hook-form';
@@ -27,7 +28,8 @@ const newAdminSchema = z.object({
 });
 
 const UserManagement = () => {
-  const { user } = useAuth();
+  const [_, navigate] = useLocation();
+  const { user: currentUser } = useAuth();
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -46,7 +48,7 @@ const UserManagement = () => {
   });
   
   // Check if user is super_admin
-  if (user?.role !== 'super_admin') {
+  if (currentUser?.role !== 'super_admin') {
     return (
       <div className="flex h-screen items-center justify-center bg-gray-50">
         <Card className="w-full max-w-md mx-4">
@@ -203,7 +205,6 @@ const UserManagement = () => {
                   <Table>
                     <TableHeader>
                       <TableRow>
-                        <TableHead>ID</TableHead>
                         <TableHead>Username</TableHead>
                         <TableHead>Email</TableHead>
                         <TableHead>Role</TableHead>
@@ -213,8 +214,7 @@ const UserManagement = () => {
                     </TableHeader>
                     <TableBody>
                       {users.map((user) => (
-                        <TableRow key={user.id}>
-                          <TableCell className="font-medium">{user.id}</TableCell>
+                        <TableRow key={user._id}>
                           <TableCell>{user.username}</TableCell>
                           <TableCell>{user.email}</TableCell>
                           <TableCell>
@@ -228,12 +228,22 @@ const UserManagement = () => {
                           </TableCell>
                           <TableCell>{new Date(user.createdAt).toLocaleDateString()}</TableCell>
                           <TableCell className="text-right">
+                           {(user.role !== 'super_admin') && (
+                            <Button
+                               size="sm"
+                               onClick={() => navigate(`/dashboard/${user._id}`)}
+                               className="text-gray-400 me-2"
+                               >
+                                View
+                            </Button>
+                           )}
                             {/* Don't allow deleting the current user or other super admins if you're not the primary super admin */}
-                            {user.id !== (user?.id) && (user.role !== 'super_admin' || user.id === 1) && (
+                                      {(user._id || user.id) !== (currentUser?._id?.toString() || currentUser?.id) && 
+                             (user.role !== 'super_admin' || (currentUser?.id === 1 || currentUser?._id === '1')) && (
                               <Button
                                 variant="ghost"
                                 size="sm"
-                                onClick={() => setConfirmDelete(user.id)}
+                                onClick={() => setConfirmDelete(user._id || user.id)}
                                 className="text-red-600 hover:text-red-700 hover:bg-red-50"
                               >
                                 <Icons.Delete className="mr-1" />

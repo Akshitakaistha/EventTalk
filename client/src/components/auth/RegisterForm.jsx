@@ -107,7 +107,7 @@ const RegisterForm = () => {
         
         <Button 
           type="submit" 
-          className="w-full bg-primary-600 hover:bg-primary-700 mt-6"
+          className="w-full"
           disabled={form.formState.isSubmitting}
         >
           {form.formState.isSubmitting ? 'Creating account...' : 'Create account'}

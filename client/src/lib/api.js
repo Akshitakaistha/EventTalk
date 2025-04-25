@@ -2,7 +2,7 @@ import { apiRequest } from '@/lib/queryClient';
 import { useToast } from '@/hooks/use-toast';
 
 /**
- * API utilities for the FormCraft application
+ * API utilities for the EventTalk application
  */
 
 // Auth API calls

@@ -19,7 +19,7 @@ const Sidebar = ({ isMobile, closeMobileMenu }) => {
     <aside className="w-64 bg-white border-r border-gray-200 h-full flex flex-col">
       <div className="p-4 border-b border-gray-200">
         <div className="flex items-center justify-between">
-          <h1 className="text-xl font-bold text-primary-600">FormCraft</h1>
+          <h1 className="text-xl font-bold text-primary-600">EventTalk</h1>
           {isMobile && (
             <button 
               className="text-gray-500 hover:text-gray-700 md:hidden"

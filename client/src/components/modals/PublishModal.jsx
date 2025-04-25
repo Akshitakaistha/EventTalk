@@ -11,8 +11,9 @@ const PublishModal = ({ onClose, formId, publishedUrl }) => {
   
   useEffect(() => {
     // Construct the full shareable URL
-    const baseUrl = window.location.origin;
-    const url = publishedUrl || `${baseUrl}/public-form/${formId}`;
+    const baseUrl = window.location.origin || 'http://localhost:5000';
+    // const url = publishedUrl || `http://localhost:5000/public-form/${formId}`;
+    const url = `http://localhost:5000/public-form/${formId}`;
     setShareUrl(url);
     
     // Generate QR code URL using a public API
