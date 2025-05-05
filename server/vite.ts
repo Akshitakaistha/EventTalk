@@ -46,9 +46,34 @@ export async function setupVite(app: Express, server: Server) {
   const uploadsPath = path.resolve(process.cwd(), "uploads");
   app.use("/uploads", express.static(uploadsPath));
 
-  app.use("*", async (req, res, next) => {
-    const url = req.originalUrl;
+  // app.use("*", async (req, res, next) => {
+  //   const url = req.originalUrl;
 
+  //   try {
+  //     const clientTemplate = path.resolve(
+  //       import.meta.dirname,
+  //       "..",
+  //       "client",
+  //       "index.html",
+  //     );
+
+  //     // always reload the index.html file from disk incase it changes
+  //     let template = await fs.promises.readFile(clientTemplate, "utf-8");
+  //     template = template.replace(
+  //       `src="/src/main.jsx"`,
+  //       `src="/src/main.jsx?v=${nanoid()}"`,
+  //     );      
+  //     const page = await vite.transformIndexHtml(url, template);
+  //     res.status(200).set({ "Content-Type": "text/html" }).end(page);
+  //   } catch (e) {
+  //     vite.ssrFixStacktrace(e as Error);
+  //     next(e);
+  //   }
+  // });
+  app.use("*", async (req, res, next) => {
+    if (req.originalUrl.startsWith("/api")) return next();
+  
+    const url = req.originalUrl;
     try {
       const clientTemplate = path.resolve(
         import.meta.dirname,
@@ -56,12 +81,11 @@ export async function setupVite(app: Express, server: Server) {
         "client",
         "index.html",
       );
-
-      // always reload the index.html file from disk incase it changes
+  
       let template = await fs.promises.readFile(clientTemplate, "utf-8");
       template = template.replace(
-        `src="/src/main.tsx"`,
-        `src="/src/main.tsx?v=${nanoid()}"`,
+        `src="/src/main.jsx"`,
+        `src="/src/main.jsx?v=${nanoid()}"`,
       );
       const page = await vite.transformIndexHtml(url, template);
       res.status(200).set({ "Content-Type": "text/html" }).end(page);
@@ -70,6 +94,8 @@ export async function setupVite(app: Express, server: Server) {
       next(e);
     }
   });
+  
+
 }
 
 export function serveStatic(app: Express) {
