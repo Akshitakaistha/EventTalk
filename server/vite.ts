@@ -41,6 +41,11 @@ export async function setupVite(app: Express, server: Server) {
   });
 
   app.use(vite.middlewares);
+
+  // Serve uploads directory statically at /uploads
+  const uploadsPath = path.resolve(process.cwd(), "uploads");
+  app.use("/uploads", express.static(uploadsPath));
+
   app.use("*", async (req, res, next) => {
     const url = req.originalUrl;
 

@@ -1,7 +1,6 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
 import { useAuth } from "../contexts/AuthContext";
 import Sidebar from "@/components/sidebar/Sidebar";
-import axios from "axios";
 
 const Settings = () => {
   const { user, logout } = useAuth();

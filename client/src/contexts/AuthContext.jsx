@@ -34,7 +34,6 @@ export function AuthProvider({ children }) {
             if (userData) {
               // Handle MongoDB response format if present
               const userObject = userData._doc || userData;
-              console.log('Auth check user data:', userObject);
               setUser(userObject);
             } else {
               // Invalid token, remove it
@@ -65,18 +64,15 @@ export function AuthProvider({ children }) {
   const login = async (username, password) => {
     try {
       setLoading(true);
-      console.log('Attempting login for:', username);
       
       const data = await apiRequest('POST', '/api/auth/login', { username, password });
-      
-      console.log('Login response:', data);
-      
+    
       // Store token and user data
       if (data && data.token) {
         localStorage.setItem('token', data.token);
         // Extract the actual user data, handling the MongoDB object
         const userData = data.user._doc || data.user;
-        console.log('Setting user data:', userData);
+     
         setUser(userData);
         
         // Redirect to dashboard
@@ -116,15 +112,13 @@ export function AuthProvider({ children }) {
         password,
         role: 'admin' // Default role for self-registration
       });
-      
-      console.log('Registration response:', data);
+    
       
       // Store token and user data
       if (data && data.token) {
         localStorage.setItem('token', data.token);
         // Extract the actual user data, handling the MongoDB object
         const userData = data.user._doc || data.user;
-        console.log('Setting user data:', userData);
         setUser(userData);
         
         // Redirect to dashboard

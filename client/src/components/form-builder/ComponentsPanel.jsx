@@ -15,8 +15,11 @@ const ComponentsPanel = () => {
     { type: 'toggle', label: 'Toggle Switch', icon: <Icons.Toggle /> },
     { type: 'fileUpload', label: 'File Upload', icon: <Icons.FileUpload /> },
     { type: 'number', label: 'Number Input', icon: <Icons.Number /> },
+    // { type: 'gender', label: 'Gender', icon: <Icons.Radio />}, // Added the new fields
     { type: 'email', label: 'Email Input', icon: <Icons.Email /> },
+    { type: 'mobileWithCheckbox', label: 'Mobile with Checkbox', icon: <Icons.Number /> },
     { type: 'mediaUpload', label: 'Audio/Video Upload', icon: <Icons.MediaUpload /> },
+    { type: 'resumeUpload', label: 'Resume Upload', icon: <Icons.FileUpload />},
     { type: 'bannerUpload', label: 'Banner Upload', icon: <Icons.BannerUpload /> }
   ];
   

@@ -1,5 +1,5 @@
-import { apiRequest } from '@/lib/queryClient';
-import { useToast } from '@/hooks/use-toast';
+import { apiRequest } from './queryClient';
+import { useToast } from '../hooks/use-toast';
 
 /**
  * API utilities for the EventTalk application
@@ -71,10 +71,41 @@ export const deleteForm = async (formId) => {
 // Form submission API calls
 export const submitForm = async (formId, formData) => {
   try {
-    const response = await apiRequest('POST', `/api/forms/${formId}/submit`, formData);
+    // If formData contains files or is not FormData, convert to FormData
+    let dataToSend;
+    if (formData instanceof FormData) {
+      dataToSend = formData;
+    } else {
+      dataToSend = new FormData();
+      // Append all keys from formData object to FormData
+      for (const key in formData) {
+        if (formData.hasOwnProperty(key)) {
+          const value = formData[key];
+          if (Array.isArray(value)) {
+            // Append array values individually
+            value.forEach((item) => {
+              dataToSend.append(key, item);
+            });
+          } else {
+            dataToSend.append(key, value);
+          }
+        }
+      }
+    }
+
+    const response = await apiRequest('POST', `/api/forms/${formId}/submit`, dataToSend);
     return await response.json();
   } catch (error) {
     throw new Error(error.message || 'Failed to submit form');
+  }
+};
+
+export const getSubmissionsByForm = async (formId) => {
+  try {
+    const response = await apiRequest('GET', `/api/forms/${formId}/submissions`);
+    return await response.json();
+  } catch (error) {
+    throw new Error(error.message || 'Failed to fetch submissions');
   }
 };
 

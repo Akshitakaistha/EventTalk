@@ -3,9 +3,11 @@ import { Switch } from '@/components/ui/switch';
 import { Checkbox } from '@/components/ui/checkbox';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Label } from '@/components/ui/label';
+// import { Gender, GenderItem } from '@/components/ui/gender';
+import GenderRadioGroup from '@/components/ui/gender';
+import NumberWithTopRightCheckbox from '@/components/ui/number-with-topRightCheckbox';
 
-// Render the appropriate component based on field type
-const FormComponents = ({ field, isPreview, onChange = () => {} }) => {
+const FormComponents = ({ field, isPreview, onChange = () => {}, onCheckboxChange = () => {} }) => {
   switch (field.type) {
     case 'textInput':
       return (
@@ -45,6 +47,7 @@ const FormComponents = ({ field, isPreview, onChange = () => {} }) => {
               <Checkbox
                 id={`checkbox-${field.id}`}
                 disabled={!isPreview}
+                checked={field.value}
                 onCheckedChange={(checked) => onChange(field.id, checked)}
                 required={field.required}
               />
@@ -83,6 +86,7 @@ const FormComponents = ({ field, isPreview, onChange = () => {} }) => {
         <RadioGroup 
           className="mt-2 space-y-2" 
           disabled={!isPreview}
+          inline={false}
           onValueChange={(value) => onChange(field.id, value)}
           required={field.required}
         >
@@ -109,6 +113,17 @@ const FormComponents = ({ field, isPreview, onChange = () => {} }) => {
           )}
         </RadioGroup>
       );
+
+      case 'gender': 
+      return (
+        <React.Fragment>
+          <GenderRadioGroup
+            value={field.value} // <- dynamic value (e.g., 'male', 'female', 'other')
+            onChange={(value) => onChange(field.id, value)}
+            disabled={!isPreview} // optional: disable logic
+          />
+        </React.Fragment>
+      );     
 
     case 'date':
       return (
@@ -246,11 +261,136 @@ const FormComponents = ({ field, isPreview, onChange = () => {} }) => {
         </div>
       );
 
+    case 'resumeUpload': {
+      const fileInputRef = React.useRef(null);
+
+      const handleButtonClick = () => {
+        if (fileInputRef.current) {
+          console.log("File input ref found, clicking input");
+          fileInputRef.current.click();
+        } else {
+          console.error("File input ref not found");
+        }
+      };
+
+      const handleFileChange = (e) => {
+        const file = e.target.files?.[0];
+        if (file) {
+          console.log("File selected:", file.name);
+          const reader = new FileReader();
+          reader.onload = (event) => {
+            if (event.target?.result) {
+              const fileData = {
+                file,
+                fileName: file.name,
+                fileType: file.type,
+                previewUrl: URL.createObjectURL(file),
+                dataUrl: event.target.result,
+              };
+              console.log("File successfully processed:", file.name);
+              if (onChange) onChange(field.id, fileData);
+            }
+          };
+          reader.onerror = () => {
+            console.error("Error reading file:", file.name);
+          };
+          reader.readAsDataURL(file);
+        }
+      };
+
+      return (
+        <div className="flex flex-col items-center justify-center px-4 py-6 bg-white rounded-md">
+          <h2 className="text-lg font-medium text-gray-800 text-center mb-6">
+            Upload your resume to be considered for jobs that match
+          </h2>
+
+          <div className="flex items-center justify-center gap-8 w-full max-w-3xl">
+            {/* Upload resume button */}
+            <div className="flex flex-col items-center">
+              <button
+                type="button"
+                onClick={handleButtonClick}
+                className="px-6 py-3 bg-[#00332b] text-white rounded-full text-sm font-medium hover:bg-[#00443c] transition"
+              >
+                Upload resume
+              </button>
+              <input
+                ref={fileInputRef}
+                id={`file-upload-${field.id}`}
+                name={`file-upload-${field.id}`}
+                type="file"
+                className="hidden"
+                disabled={!isPreview}
+                onChange={handleFileChange}
+                required={field.required}
+                accept={
+                  field.allowedTypes ||
+                  "image/*,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+                }
+              />
+            </div>
+
+            {/* OR Divider */}
+            <div className="flex flex-col items-center text-gray-500 text-sm">
+              <div className="h-5 border-l border-gray-300 mb-1" />
+              OR
+              <div className="h-5 border-l border-gray-300 mt-1" />
+            </div>
+
+            {/* Continue without resume */}
+            <div className="text-sm text-left max-w-xs">
+              <p className="text-gray-600 mb-1">Don't have a resume file ready?</p>
+              <button
+                type="button"
+                onClick={() => {
+                  if (onChange) onChange(field.id, null);
+                  console.log("Continue without resume");
+                }}
+                className="text-teal-700 hover:underline font-medium"
+              >
+                Continue without resume →
+              </button>
+            </div>
+          </div>
+          {/* Show uploaded file if exists */}
+          {(field.previewUrl || field.value?.previewUrl) && (
+            <div className="mt-4 flex flex-col items-center">
+              <div className="my-2 p-2 border rounded bg-gray-50 flex items-center max-w-full">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="h-5 w-5 text-green-600 mr-2"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                </svg>
+                <span className="text-sm text-gray-700 truncate max-w-[200px]">
+                  {field.fileName || field.value?.fileName || 'Uploaded file'}
+                </span>
+              </div>
+              {isPreview && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (onChange) onChange(field.id, null);
+                  }}
+                  className="text-xs text-red-600 hover:text-red-800 underline"
+                >
+                  Remove file
+                </button>
+              )}
+            </div>
+          )}
+        </div>
+      );
+    }
+
     case 'number':
       return (
         <input 
           type="number" 
-          placeholder={field.placeholder || '0'}
+          placeholder={field?.placeholder}
           className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm"
           disabled={!isPreview}
           onChange={(e) => onChange(field.id, e.target.value)}
@@ -261,6 +401,16 @@ const FormComponents = ({ field, isPreview, onChange = () => {} }) => {
           readOnly={field.readOnly}
         />
       );
+
+    case 'mobileWithCheckbox':
+        return (
+          <NumberWithTopRightCheckbox
+            field={field}
+            isPreview={isPreview}
+            onChange={onChange}
+            onCheckboxChange={onCheckboxChange}
+          />
+        );
 
     case 'email':
       return (

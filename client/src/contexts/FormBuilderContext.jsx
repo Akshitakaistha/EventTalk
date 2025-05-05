@@ -64,6 +64,16 @@ const initialFieldStates = {
       { label: 'Option 3', value: 'option3' }
     ]
   },
+  gender: {
+    type: 'radio',
+    label: 'Gender',
+    required: true,
+    options: [
+      { label: 'Male', value: 'male' },
+      { label: 'Female', value: 'female' },
+      { label: 'Other', value: 'other' },
+    ]
+  },
   date: {
     type: 'date',
     label: 'Date/Time Picker',
@@ -87,6 +97,14 @@ const initialFieldStates = {
     fileTypeText: 'PNG, JPG, PDF, DOC up to 10MB',
     maxFileSize: 10
   },
+  resumeUpload: {
+    type: 'resumeUpload',
+    label: 'Resume Upload',
+    required: false,
+    allowedTypes: 'image/*,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+    fileTypeText: 'PNG, JPG, PDF, DOC up to 10MB',
+    maxFileSize: 10
+  },
   number: {
     type: 'number',
     label: 'Number Input',
@@ -104,6 +122,14 @@ const initialFieldStates = {
     placeholder: 'email@example.com',
     required: false,
     pattern: '^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$'
+  },
+  mobileWithCheckbox: {
+    type: 'mobileWithCheckbox',
+    label: 'Mobile Number',
+    required: false,
+    checkboxLabel: 'Checkbox',
+    checkboxText: 'Check this box',
+    gridColumn: 'full'
   },
   mediaUpload: {
     type: 'mediaUpload',

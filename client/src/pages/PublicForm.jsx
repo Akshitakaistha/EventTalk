@@ -1,13 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useParams } from 'wouter';
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { z } from 'zod';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { Form } from '@/components/ui/form';
 import { useToast } from '@/hooks/use-toast';
-import { apiRequest } from '@/lib/queryClient';
 import FormComponents from '@/components/form-builder/FormComponents';
 import { Icons } from '@/components/ui/ui-icons';
 
@@ -57,15 +52,12 @@ const PublicForm = () => {
   // Handle form submission
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
     try {
       setSubmitting(true);
-      
       // Check required fields
       const requiredFieldsMissing = form.schema.fields
         .filter(field => field.required)
         .some(field => !formValues[field.id] && formValues[field.id] !== false);
-      
       if (requiredFieldsMissing) {
         toast({
           title: 'Error',
@@ -74,13 +66,10 @@ const PublicForm = () => {
         });
         return;
       }
-      
       // Prepare form data for submission with file uploads
       const formData = new FormData();
-      
       // Add submission metadata
       formData.append('formId', id);
-      
       // Process each form value
       Object.entries(formValues).forEach(([fieldId, value]) => {
         // Check if this is a file upload
@@ -97,7 +86,6 @@ const PublicForm = () => {
           formData.append(`data[${fieldId}]`, JSON.stringify(value));
         }
       });
-      
       // Submit the form with multipart/form-data
       const response = await fetch(`/api/forms/${id}/submit`, {
         method: 'POST',
@@ -156,7 +144,7 @@ const PublicForm = () => {
       </div>
     );
   }
-  
+
   if (submissionSuccess) {
     return (
       <div className="min-h-screen bg-gray-50 py-12 px-4 sm:px-6 lg:px-8 flex flex-col items-center justify-center">
@@ -189,134 +177,132 @@ const PublicForm = () => {
   const regularFields = form?.schema.fields.filter(field => field.type !== 'bannerUpload') || [];
   
   return (
-    <div className="min-h-screen bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-4xl mx-auto">
-        <Card className="mb-8">
-          <CardHeader>
-            <CardTitle>{form?.name || 'Untitled Form'}</CardTitle>
-            {form?.description && (
-              <CardDescription>{form.description}</CardDescription>
-            )}
-          </CardHeader>
-        </Card>
-        
-        <form onSubmit={handleSubmit}>
+    <div className="min-h-screen bg-gray-50 py-2 px-2 sm:px-6 lg:px-8">
+      <div className="max-w-full">
+        <form onSubmit={handleSubmit} className="flex flex-col h-[calc(100vh-30px)]">
           {hasBannerComponent ? (
             // Banner-enabled form layout (2-column)
             <div className="bg-white rounded-lg shadow-sm mb-6">
-              <div className="flex flex-col md:flex-row">
+              <div className={`${bannerField?.position === 'top' ? 'w-full flex-col px-5 py-3' : 'w-full'} flex h-full relative`}>
                 {/* Banner Upload Area (Left side) */}
-                <div className="md:w-1/3 p-4 border-b md:border-b-0 md:border-r border-gray-200">
-                  <div className="bg-gray-50 border-2 border-dashed border-gray-300 rounded-md p-6 flex flex-col items-center justify-center h-full">
-                    {formValues[bannerField?.id]?.preview ? (
-                      <div className="w-full h-full">
-                        <img 
-                          src={formValues[bannerField.id].preview} 
-                          alt="Banner Preview" 
-                          className="w-full h-full object-contain max-h-64"
-                        />
-                        <div className="mt-4 flex justify-center">
-                          <label className="cursor-pointer px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500">
-                            Change Banner
-                            <input 
-                              type="file" 
-                              className="sr-only" 
-                              accept="image/*" 
-                              onChange={(e) => {
-                                const file = e.target.files?.[0];
-                                if (file) {
-                                  console.log("Banner upload changed:", file.name);
-                                  const reader = new FileReader();
-                                  reader.onload = (event) => {
-                                    if (event.target?.result) {
-                                      // Set banner in form values
-                                      setFormValues(prev => ({
-                                        ...prev,
-                                        [bannerField.id]: {
-                                          file: file,
-                                          fileName: file.name,
-                                          preview: event.target.result
-                                        }
-                                      }));
+                <div 
+                  className={`${
+                    bannerField?.position === 'top' ? 'h-[calc(100vh-25px)] w-full' : 'h-full md:w-1/2'
+                  } relative`} 
+                  style={{ height: 'calc(100vh - 25px)' }} // Banner height 25px less than screen height
+                >
+                  {(bannerField?.bannerUrl || formValues[bannerField?.id]?.preview) ? (
+                    <div className="w-full h-full">
+                      <img 
+                        src={formValues[bannerField?.id]?.preview || bannerField.bannerUrl} 
+                        alt="Banner Preview" 
+                        className="w-full h-full object-fill p-2"
+                      />
+                    </div>
+                  ) : (
+                    <>
+                      <Icons.BannerUpload />
+                      <p className="mt-2 text-sm text-gray-500">{bannerField?.label || 'Upload event banner'}</p>
+                      <p className="text-xs text-gray-400 mt-1">{bannerField?.helperText || 'PNG, JPG, GIF up to 10MB'}</p>
+                      <label className="mt-4 cursor-pointer px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500">
+                        Upload Banner
+                        <input 
+                          type="file" 
+                          className="sr-only" 
+                          accept="image/*" 
+                          onChange={(e) => {
+                            const file = e.target.files?.[0];
+                            if (file) {
+                              const reader = new FileReader();
+                              reader.onload = (event) => {
+                                if (event.target?.result) {
+                                  setFormValues(prev => ({
+                                    ...prev,
+                                    [bannerField.id]: {
+                                      file: file,
+                                      fileName: file.name,
+                                      preview: event.target.result
                                     }
-                                  };
-                                  reader.readAsDataURL(file);
+                                  }));
                                 }
-                              }}
-                            />
-                          </label>
+                              };
+                              reader.readAsDataURL(file);
+                            }
+                          }}
+                        />
+                      </label>
+                    </>
+                  )}
+                </div>
+                {/* Form Fields (Right side) */}
+                <div className={`space-y-6 p-4 ${bannerField.position === 'top' ? 'w-full' : 'md:w-1/2'}`} style={{ overflowY: 'auto', height: 'calc(100vh - 25px)' }}>
+                  <Card className="mb-4 border-none shadow-none">
+                    <CardHeader>
+                      <div className="flex items-center justify-between flex-wrap w-full">
+                        <div className="flex gap-2 ml-auto">
+                          <button 
+                            type="button"
+                            className="border border-gray-300 text-gray-700 text-sm rounded-full flex items-center px-4 py-2 hover:bg-gray-100 transition"
+                            onClick={() => {
+                              const url = `${window.location.origin}/public-form/${form._id}`;
+                              navigator.clipboard.writeText(url);
+                              toast({ title: 'Success', description: 'Form URL copied to clipboard!' });
+                            }}
+                          >
+                            <Icons.Copy className="mr-2 h-4 w-4" />
+                          </button>
+                          <button 
+                            type="button"
+                            className="border border-green-500 text-green-700 text-sm rounded-full flex items-center px-4 py-2 hover:bg-green-100 transition"
+                            onClick={() => {
+                              const url = `${window.location.origin}/public-form/${form._id}`;
+                              const whatsappLink = `https://wa.me/?text=${encodeURIComponent(url)}`;
+                              window.open(whatsappLink, '_blank');
+                            }}
+                          >
+                            <Icons.Share className="mr-2 h-4 w-4" />
+                          </button>
                         </div>
                       </div>
-                    ) : (
-                      <>
-                        <Icons.BannerUpload />
-                        <p className="mt-2 text-sm text-gray-500">{bannerField?.label || 'Upload event banner'}</p>
-                        <p className="text-xs text-gray-400 mt-1">{bannerField?.helperText || 'PNG, JPG, GIF up to 10MB'}</p>
-                        <label className="mt-4 cursor-pointer px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500">
-                          Upload Banner
-                          <input 
-                            type="file" 
-                            className="sr-only" 
-                            accept="image/*" 
-                            onChange={(e) => {
-                              const file = e.target.files?.[0];
-                              if (file) {
-                                console.log("Banner upload selected:", file.name);
-                                const reader = new FileReader();
-                                reader.onload = (event) => {
-                                  if (event.target?.result) {
-                                    // Set banner in form values
-                                    setFormValues(prev => ({
-                                      ...prev,
-                                      [bannerField.id]: {
-                                        file: file,
-                                        fileName: file.name,
-                                        preview: event.target.result
-                                      }
-                                    }));
-                                  }
-                                };
-                                reader.readAsDataURL(file);
-                              }
-                            }}
-                          />
-                        </label>
-                      </>
-                    )}
-                  </div>
-                </div>
-                
-                {/* Form Fields (Right side) */}
-                <div className="md:w-2/3 p-4">
-                  <div className="space-y-6">
-                    {regularFields.map(field => (
-                      <div key={field.id} className="form-field">
-                        {!field.hideLabel && (
-                          <>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">
-                              {field.label}
-                              {field.required && <span className="text-red-500 ml-1">*</span>}
-                            </label>
-                            {field.helperText && <p className="text-xs text-gray-500 mb-2">{field.helperText}</p>}
-                          </>
-                        )}
-                        <FormComponents 
-                          field={field} 
-                          isPreview={true} 
-                          onChange={handleFormValueChange}
-                        />
-                      </div>
-                    ))}
-                    
-                    <div className="pt-6">
-                      <Button
-                        type="submit"
-                        className="w-full"
-                        disabled={submitting}
-                      >
-                        {submitting ? 'Submitting...' : 'Submit Form'}
-                      </Button>
+                      <h2 className="text-lg font-bold text-center mx-auto flex-1">
+                          {form?.name || 'Untitled Form'}
+                        </h2>
+                      {form?.description && (
+                        <CardDescription className="text-center mt-2 text-sm text-gray-500">
+                          {form.description}
+                        </CardDescription>
+                      )}
+                    </CardHeader>
+                  </Card>
+                  {regularFields.map(field => (
+                    <div key={field.id} className={`form-field px-3 ${field.gridColumn === 'half' ? 'md:w-1/2 md:pr-3 md:inline-block' : 'w-full'}`}>
+                      {!field.hideLabel && (
+                        <>
+                          <label className={`${((field.label === 'Mobile Number') || (field.label === 'Resume Upload')) && 'hidden'} block text-sm font-medium text-gray-700`}>
+                            {field.label}
+                            {field.required && <span className="text-red-500 ml-1">*</span>}
+                          </label>
+                          {field.helperText && <p className="text-xs text-gray-500 mb-2">{field.helperText}</p>}
+                        </>
+                      )}
+    <FormComponents 
+      field={{
+        ...field,
+        value: formValues[field.id] !== undefined ? formValues[field.id] : field.value
+      }} 
+      isPreview={true} 
+      onChange={handleFormValueChange}
+    />
                     </div>
+                  ))}
+                  <div className="pt-6">
+                    <Button
+                      type="submit"
+                      className="w-full"
+                      disabled={submitting}
+                    >
+                      {submitting ? 'Submitting...' : 'Submit Form'}
+                    </Button>
                   </div>
                 </div>
               </div>
@@ -326,11 +312,50 @@ const PublicForm = () => {
             <Card>
               <CardContent className="p-6">
                 <div className="space-y-6">
+                  <Card className="mb-4 border-none shadow-none">
+                    <CardHeader>
+                      <div className="flex items-center justify-between flex-wrap w-full">
+                        <div className="flex gap-2 ml-auto">
+                          <button 
+                            type="button"
+                            className="border border-gray-300 text-gray-700 text-sm rounded-full flex items-center px-4 py-2 hover:bg-gray-100 transition"
+                            onClick={() => {
+                              const url = `${window.location.origin}/public-form/${form._id}`;
+                              navigator.clipboard.writeText(url);
+                              toast({ title: 'Success', description: 'Form URL copied to clipboard!' });
+                            }}
+                          >
+                            <Icons.Copy className="mr-2 h-4 w-4" />
+                          </button>
+                          <button 
+                            type="button"
+                            className="border border-green-500 text-green-700 text-sm rounded-full flex items-center px-4 py-2 hover:bg-green-100 transition"
+                            onClick={() => {
+                              const url = `${window.location.origin}/public-form/${form._id}`;
+                              const whatsappLink = `https://wa.me/?text=${encodeURIComponent(url)}`;
+                              window.open(whatsappLink, '_blank');
+                            }}
+                          >
+                            <Icons.Share className="mr-2 h-4 w-4" />
+                            WhatsApp
+                          </button>
+                        </div>
+                      </div>
+                      <h2 className="text-lg font-semibold mx-auto flex-1">
+                          {form?.name || 'Untitled Form'}
+                        </h2>
+                      {form?.description && (
+                        <CardDescription className="mt-2 text-sm text-gray-500">
+                          {form.description}
+                        </CardDescription>
+                      )}
+                    </CardHeader>
+                  </Card>
                   {regularFields.map(field => (
-                    <div key={field.id} className="form-field">
+                    <div key={field.id} className={`form-field ${field.gridColumn === 'half' ? 'md:w-1/2 md:pr-3 md:inline-block' : 'w-full'}`}>
                       {!field.hideLabel && (
                         <>
-                          <label className="block text-sm font-medium text-gray-700 mb-1">
+                          <label className={`${(field.label === 'Mobile Number') && 'hidden'} block text-sm font-medium text-gray-700`}>
                             {field.label}
                             {field.required && <span className="text-red-500 ml-1">*</span>}
                           </label>
@@ -358,10 +383,6 @@ const PublicForm = () => {
             </Card>
           )}
         </form>
-        
-        <div className="mt-8 text-center text-sm text-gray-500">
-          <p>Powered by EventTalk</p>
-        </div>
       </div>
     </div>
   );

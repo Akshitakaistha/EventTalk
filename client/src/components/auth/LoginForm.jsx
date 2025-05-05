@@ -29,7 +29,6 @@ const LoginForm = () => {
 
   const onSubmit = async (data) => {
     try {
-      console.log('Form submission:', data);
       await login(data.username, data.password);
     } catch (error) {
       console.error('Login form error:', error);

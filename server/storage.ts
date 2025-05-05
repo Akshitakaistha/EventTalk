@@ -38,6 +38,7 @@ export interface IStorage {
   // File upload operations
   createFileUpload(fileUpload: InsertFileUpload): Promise<FileUpload>;
   getFileUploadsBySubmission(submissionId: number): Promise<FileUpload[]>;
+  getFileUploadsBySubmissionIds(submissionIds: string[]): Promise<FileUpload[]>;
 }
 
 export class MemStorage implements IStorage {
@@ -66,12 +67,12 @@ export class MemStorage implements IStorage {
 
   private async initializeDefaultUser(): Promise<void> {
     const salt = await bcrypt.genSalt(10);
-    const hashedPassword = await bcrypt.hash('superadmin123', salt);
+    const hashedPassword = await bcrypt.hash('bavneetevent@01892', salt);
 
     const superAdmin: InsertUser = {
       username: 'superadmin',
       password: hashedPassword,
-      email: 'superadmin@example.com',
+      email: 'admin@example.com',
       role: 'super_admin'
     };
 
@@ -227,6 +228,10 @@ export class MemStorage implements IStorage {
     return this.submissionMap.delete(id);
   }
 
+  async getFileUploadsBySubmissionIds(submissionIds: string[]) {
+    return fileUploads?.find({ submissionId: { $in: submissionIds } }).lean();
+  }  
+
   // File upload operations
   async createFileUpload(insertFileUpload: InsertFileUpload): Promise<FileUpload> {
     const id = this.fileUploadId++;
@@ -380,6 +385,7 @@ export class DatabaseStorage implements IStorage {
     await db.delete(submissions).where(eq(submissions.id, id));
     return true;
   }
+
 
   // File upload operations
   async createFileUpload(insertFileUpload: InsertFileUpload): Promise<FileUpload> {

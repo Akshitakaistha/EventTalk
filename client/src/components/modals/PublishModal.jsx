@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { Icons } from '@/components/ui/ui-icons';
 import { useToast } from '@/hooks/use-toast';
+import { SERVER_URL } from '../../App';
 
-const PublishModal = ({ onClose, formId, publishedUrl }) => {
+const PublishModal = ({ onClose, formId, publishedUrl, formState }) => {
   const { toast } = useToast();
   const [copied, setCopied] = useState(false);
   const [shareUrl, setShareUrl] = useState('');
@@ -11,9 +12,8 @@ const PublishModal = ({ onClose, formId, publishedUrl }) => {
   
   useEffect(() => {
     // Construct the full shareable URL
-    const baseUrl = window.location.origin || 'http://localhost:5000';
-    // const url = publishedUrl || `http://localhost:5000/public-form/${formId}`;
-    const url = `http://localhost:5000/public-form/${formId}`;
+    const baseUrl = window.location.origin || SERVER_URL;
+    const url = formId ? `${SERVER_URL}/public-form/${formId}` : `${SERVER_URL}${formState?.publishedUrl}`;
     setShareUrl(url);
     
     // Generate QR code URL using a public API
@@ -63,12 +63,12 @@ const PublishModal = ({ onClose, formId, publishedUrl }) => {
           {/* Header */}
           <div className="bg-primary-600 px-4 py-4 sm:px-6">
             <div className="flex items-center justify-between">
-              <h3 className="text-lg font-semibold text-white" id="modal-title">
+              <h3 className="text-lg font-semibold" id="modal-title">
                 Form Published Successfully
               </h3>
               <button 
                 onClick={onClose}
-                className="text-white hover:text-gray-200"
+                className=" hover:text-red-500"
               >
                 <Icons.X className="h-5 w-5" />
               </button>
@@ -172,7 +172,7 @@ const PublishModal = ({ onClose, formId, publishedUrl }) => {
                   </p>
                   <button
                     onClick={handleShareEmail}
-                    className="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-primary-600 hover:bg-primary-700"
+                    className="inline-flex items-center px-4 py-2 border border-gray-500 rounded-md shadow-sm text-sm font-medium bg-primary-600 hover:bg-primary-700"
                   >
                     <Icons.Mail className="h-5 w-5 mr-2" />
                     Compose Email
@@ -203,7 +203,7 @@ const PublishModal = ({ onClose, formId, publishedUrl }) => {
           <div className="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
             <button 
               type="button" 
-              className="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-primary-600 text-base font-medium text-white hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 sm:ml-3 sm:w-auto sm:text-sm"
+              className="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-primary-600 text-base font-medium  hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 sm:ml-3 sm:w-auto sm:text-sm"
               onClick={handleViewForm}
             >
               <Icons.ExternalLink className="h-4 w-4 mr-1" />

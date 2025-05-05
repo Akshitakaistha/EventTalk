@@ -44,7 +44,7 @@ const FormBuilderPage = () => {
       
       {/* Main content - Form Builder */}
       <div className="flex-1 overflow-hidden">
-        <FormBuilderComponent formId={id ? parseInt(id) : null} />
+        <FormBuilderComponent formId={id ? id : null} />
       </div>
     </div>
   );

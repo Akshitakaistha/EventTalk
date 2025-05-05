@@ -28,35 +28,28 @@ const FormBuilder = ({ formId }) => {
 
   // Load form data if editing existing form
   useEffect(() => {
-    const loadForm = async () => {
-      if (formId) {
-        try {
-          const response = await fetch(`/api/forms/${formId}`, {
-            credentials: 'include'
-          });
+        const loadForm = async () => {
+          if (formId) {
+            try {
+              const formData = await apiRequest('GET', `/api/forms/${formId}`);
 
-          if (!response.ok) {
-            throw new Error('Failed to load form');
+              setFormState(prevState => ({
+                ...prevState,
+                id: formData.id,
+                name: formData.name,
+                description: formData.description,
+                fields: formData.schema.fields || [],
+                status: formData.status
+              }));
+            } catch (error) {
+              toast({
+                title: 'Error',
+                description: 'Failed to load form. Please try again.',
+                variant: 'destructive'
+              });
+            }
           }
-
-          const formData = await response.json();
-          setFormState(prevState => ({
-            ...prevState,
-            id: formData.id,
-            name: formData.name,
-            description: formData.description,
-            fields: formData.schema.fields || [],
-            status: formData.status
-          }));
-        } catch (error) {
-          toast({
-            title: 'Error',
-            description: 'Failed to load form. Please try again.',
-            variant: 'destructive'
-          });
-        }
-      }
-    };
+        };
 
     if (formId) {
       loadForm();
@@ -108,12 +101,8 @@ const FormBuilder = ({ formId }) => {
           description: formState.description || '',
           schema: { fields: formState.fields },
           status: 'draft',
-          userId: userData._id || userData.id
+          userId: userData._id 
         };
-
-        console.log("Prepared form data:", JSON.stringify(formData));
-        console.log("userId:", formData.userId);
-        console.log("User data type:", userData._id ? 'MongoDB' : 'Other storage');
 
         if (formId) {
           // Update existing form
@@ -142,34 +131,31 @@ const FormBuilder = ({ formId }) => {
             console.log("New form created response:", response);
             
             // Extract form ID - handle both MongoDB and regular formats
-            let formId = null;
+            let newFormId = null;
             
             // If MongoDB response
             if (response && response._id) {
-              formId = response._id;
-              console.log("Found MongoDB _id:", formId);
+              newFormId = response._id;
             }
             // Normal response
             else if (response && response.id) {
-              formId = response.id;
-              console.log("Found regular id:", formId);
+              newFormId = response.id;
             }
             // Direct MongoDB document
             else if (response && response.$__ && response._doc && response._doc._id) {
-              formId = response._doc._id;
-              console.log("Found MongoDB document _id in _doc:", formId);
+              newFormId = response._doc._id;
             }
             
-            if (!formId) {
+            if (!newFormId) {
               console.error("API returned success but no form ID. Response:", response);
               throw new Error("Server didn't return a valid form ID");
             }
             
-            console.log("Setting form state with new ID:", formId);
+            console.log("Setting form state with new ID:", newFormId);
             // Update state with new form ID
             setFormState(prev => ({
               ...prev,
-              id: formId
+              id: newFormId
             }));
             
             toast({
@@ -229,7 +215,7 @@ const FormBuilder = ({ formId }) => {
         throw new Error("Not authenticated");
       }
       
-      // First save the form - include userId explicitly
+      // Prepare form data for saving as draft before publishing
       const formData = {
         name: formState.name || 'Untitled Form',
         description: formState.description || '',
@@ -237,10 +223,8 @@ const FormBuilder = ({ formId }) => {
         status: 'draft',
         userId: userData._id || userData.id
       };
-
-      console.log("Publishing form data:", JSON.stringify(formData));
       
-      let formToPublish = formId;
+      let formToPublishId = formId;
 
       if (!formId) {
         // Create new form first
@@ -251,35 +235,30 @@ const FormBuilder = ({ formId }) => {
           console.log("New form created before publishing:", newForm);
           
           // Extract form ID - handle both MongoDB and regular formats
-          let formId = null;
+          let newFormId = null;
           
-          // If MongoDB response
           if (newForm && newForm._id) {
-            formId = newForm._id;
-            console.log("Found MongoDB _id:", formId);
-          }
-          // Normal response
-          else if (newForm && newForm.id) {
-            formId = newForm.id;
-            console.log("Found regular id:", formId);
-          }
-          // Direct MongoDB document
-          else if (newForm && newForm.$__ && newForm._doc && newForm._doc._id) {
-            formId = newForm._doc._id;
-            console.log("Found MongoDB document _id in _doc:", formId);
+            newFormId = newForm._id;
+            console.log("Found MongoDB _id:", newFormId);
+          } else if (newForm && newForm.id) {
+            newFormId = newForm.id;
+            console.log("Found regular id:", newFormId);
+          } else if (newForm && newForm.$__ && newForm._doc && newForm._doc._id) {
+            newFormId = newForm._doc._id;
+            console.log("Found MongoDB document _id in _doc:", newFormId);
           }
           
-          if (!formId) {
+          if (!newFormId) {
             console.error("API returned success but no form ID. Response:", newForm);
             throw new Error("Server didn't return a valid form ID");
           }
           
-          formToPublish = formId;
+          formToPublishId = newFormId;
   
           // Update state with new form ID
           setFormState(prev => ({
             ...prev,
-            id: formId
+            id: newFormId
           }));
         } catch (apiError) {
           console.error("API error creating form:", apiError);
@@ -289,7 +268,8 @@ const FormBuilder = ({ formId }) => {
         // Update existing form
         console.log("Updating existing form with ID:", formId);
         try {
-          await apiRequest('PUT', `/api/forms/${formId}`, formData);
+          const response = await apiRequest('PUT', `/api/forms/${formId}`, formData);
+          console.log("Form update response:", response);
         } catch (apiError) {
           console.error("API error updating form:", apiError);
           throw new Error(`Failed to update form: ${apiError.message || 'Unknown error'}`);
@@ -297,9 +277,9 @@ const FormBuilder = ({ formId }) => {
       }
 
       // Then publish the form
-      console.log("Publishing form with ID:", formToPublish);
+      console.log("Publishing form with ID:", formToPublishId);
       try {
-        const publishedForm = await apiRequest('POST', `/api/forms/${formToPublish}/publish`);
+        const publishedForm = await apiRequest('POST', `/api/forms/${formToPublishId}/publish`);
         
         console.log("Form published successfully:", publishedForm);
 
@@ -354,12 +334,12 @@ const FormBuilder = ({ formId }) => {
           formName={formState.name || 'Untitled Form'}
         />
       )}
-
       {showPublishModal && (
         <PublishModal
           onClose={() => setShowPublishModal(false)}
           formId={formState.id}
           publishedUrl={formState.publishedUrl}
+          formState={formState}
         />
       )}
     </div>

@@ -1,9 +1,9 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Link } from 'wouter';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { useToast } from '@/hooks/use-toast';
 import { apiRequest } from '@/lib/queryClient';
@@ -12,7 +12,6 @@ import { Icons } from '@/components/ui/ui-icons';
 import Sidebar from '@/components/sidebar/Sidebar';
 
 const FormsList = () => {
-  const { user } = useAuth();
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -61,6 +60,17 @@ const FormsList = () => {
   const handleDeleteForm = (formId) => {
     deleteMutation.mutate(formId);
   };
+
+  const [currentPage, setCurrentPage] = useState(1);
+  const formsPerPage = 6;
+
+  const paginatedForms = filteredForms.slice(
+    (currentPage - 1) * formsPerPage,
+    currentPage * formsPerPage
+  );
+
+  const totalPages = Math.ceil(filteredForms.length / formsPerPage);
+
   
   return (
     <div className="flex h-screen overflow-hidden bg-gray-50">
@@ -145,57 +155,57 @@ const FormsList = () => {
             </Card>
           ) : filteredForms.length > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {filteredForms.map(form => (
-                <Card key={form._id} className="hover:shadow-md transition-shadow">
-                  <CardHeader>
-                    <CardTitle>{form.name || 'Untitled Form'}</CardTitle>
-                    <CardDescription>
-                      {form.status === 'published' ? (
-                        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                          Published
-                        </span>
-                      ) : (
-                        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
-                          Draft
-                        </span>
-                      )}
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent className="h-24 overflow-hidden">
-                    <p className="text-gray-500 text-sm">
-                      {form.description || 'No description'}
-                    </p>
-                  </CardContent>
-                  <CardFooter>
-                    <div className="w-full flex flex-wrap gap-2">
-                      <Button variant="outline" className="flex-1" asChild>
-                        <Link href={`/forms/edit/${form._id}`}>
-                          <Icons.Edit className="mr-1" />
-                          Edit
-                        </Link>
-                      </Button>
-                      
-                      {form.status === 'published' && (
-                        <Button variant="outline" className="flex-1" asChild>
-                          <Link href={`/forms/${form._id}/responses`}>
-                            <Icons.Responses className="mr-1" />
-                            Responses
-                          </Link>
-                        </Button>
-                      )}
-                      
-                      <Button 
-                        variant="outline" 
-                        className="flex-1 text-red-600 hover:text-red-700 hover:bg-red-50"
-                        onClick={() => setConfirmDelete(form._id)}
-                      >
-                        <Icons.Delete className="mr-1" />
-                        Delete
-                      </Button>
-                    </div>
-                  </CardFooter>
-                </Card>
-              ))}
+            {paginatedForms.map(form => (
+        <Card key={form._id} className="border border-gray-200 shadow-sm hover:shadow-md transition-all rounded-xl">
+          <CardHeader className="pb-2">
+            <div className="flex justify-between items-center">
+              <CardTitle className="text-lg font-semibold truncate">{form.name || 'Untitled Form'}</CardTitle>
+              <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${
+                form.status === 'published' ? 'bg-green-100 text-green-700' : 'bg-yellow-100 text-yellow-700'
+              }`}>
+                {form.status}
+              </span>
+            </div>
+          </CardHeader>
+          <CardContent className="h-20 overflow-hidden text-sm text-gray-600">
+            <p className="line-clamp-3">{form.description || 'No description available.'}</p>
+          </CardContent>
+          <CardFooter className="flex flex-wrap gap-2 mt-2">
+            <Button variant="outline" size="sm" className="flex-1" asChild>
+              <Link href={`/forms/edit/${form._id}`}>
+                <Icons.Edit className="mr-1 h-4 w-4" /> Edit
+              </Link>
+            </Button>
+            {form.status === 'published' && (
+              <>
+                <Button variant="outline" size="sm" className="flex-1" asChild>
+                  <Link href={`/forms/${form._id}/responses`}>
+                    <Icons.Responses className="mr-1 h-4 w-4" /> Responses
+                  </Link>
+                </Button>
+                <Button 
+                  variant="outline" size="sm" 
+                  className="flex-1" 
+                  onClick={() => {
+                    const url = `${window.location.origin}/public-form/${form._id}`;
+                    navigator.clipboard.writeText(url);
+                    toast({ title: 'Success', description: 'Form URL copied to clipboard!' });
+                  }}
+                >
+                  <Icons.Copy className="mr-1 h-4 w-4" /> Copy URL
+                </Button>
+              </>
+            )}
+            <Button 
+              variant="outline" size="sm"
+              className="flex-1 text-red-600 hover:bg-red-50"
+              onClick={() => setConfirmDelete(form._id)}
+            >
+              <Icons.Delete className="mr-1 h-4 w-4" /> Delete
+            </Button>
+          </CardFooter>
+        </Card>
+            ))}
             </div>
           ) : (
             <Card>
@@ -212,6 +222,36 @@ const FormsList = () => {
                 )}
               </CardContent>
             </Card>
+          )}
+          {totalPages > 1 && (
+              <div className="flex justify-center mt-6 gap-2 mt-3">
+                <Button 
+                  size="sm"
+                  variant="outline"
+                  disabled={currentPage === 1}
+                  onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+                >
+                  Previous
+                </Button>
+                {Array.from({ length: totalPages }, (_, i) => (
+                  <Button
+                    key={i}
+                    size="sm"
+                    variant={currentPage === i + 1 ? 'default' : 'outline'}
+                    onClick={() => setCurrentPage(i + 1)}
+                  >
+                    {i + 1}
+                  </Button>
+                ))}
+                <Button 
+                  size="sm"
+                  variant="outline"
+                  disabled={currentPage === totalPages}
+                  onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
+                >
+                  Next
+                </Button>
+              </div>
           )}
         </main>
       </div>

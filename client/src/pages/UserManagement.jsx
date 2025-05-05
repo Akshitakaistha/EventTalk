@@ -6,7 +6,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
@@ -134,35 +134,12 @@ const UserManagement = () => {
   const handleDeleteUser = (userId) => {
     deleteUserMutation.mutate(userId);
   };
-  
-  return (
-    <div className="flex h-screen overflow-hidden bg-gray-50">
-      {/* Mobile menu button */}
-      <div className="md:hidden absolute top-4 left-4 z-50">
-        <button
-          className="p-2 rounded-md text-gray-500 hover:text-gray-700 hover:bg-gray-100 focus:outline-none"
-          onClick={toggleMobileMenu}
-        >
-          <Icons.Menu />
-        </button>
-      </div>
-      
-      {/* Mobile sidebar */}
-      {isMobileMenuOpen && (
-        <div className="fixed inset-0 z-40 md:hidden">
-          <div className="fixed inset-0 bg-gray-600 bg-opacity-75" onClick={() => setIsMobileMenuOpen(false)}></div>
-          <div className="relative flex-1 flex flex-col max-w-xs w-full bg-white h-full">
-            <Sidebar isMobile={true} closeMobileMenu={() => setIsMobileMenuOpen(false)} />
-          </div>
-        </div>
-      )}
-      
-      {/* Desktop sidebar */}
-      <div className="hidden md:flex md:flex-shrink-0">
-        <Sidebar />
-      </div>
-      
-      {/* Main content */}
+
+  /**
+   * Function to render the main content of the table
+   */
+  function renderMainContent(){
+    return (
       <div className="flex-1 overflow-auto">
         <main className="p-6 max-w-7xl mx-auto">
           <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-6">
@@ -181,7 +158,6 @@ const UserManagement = () => {
               </Button>
             </div>
           </div>
-          
           {/* Users table */}
           {isLoading ? (
             <div className="flex justify-center p-8">
@@ -209,7 +185,7 @@ const UserManagement = () => {
                         <TableHead>Email</TableHead>
                         <TableHead>Role</TableHead>
                         <TableHead>Created At</TableHead>
-                        <TableHead className="text-right">Actions</TableHead>
+                        <TableHead>Actions</TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>
@@ -227,18 +203,9 @@ const UserManagement = () => {
                             </span>
                           </TableCell>
                           <TableCell>{new Date(user.createdAt).toLocaleDateString()}</TableCell>
-                          <TableCell className="text-right">
-                           {(user.role !== 'super_admin') && (
-                            <Button
-                               size="sm"
-                               onClick={() => navigate(`/dashboard/${user._id}`)}
-                               className="text-gray-400 me-2"
-                               >
-                                View
-                            </Button>
-                           )}
-                            {/* Don't allow deleting the current user or other super admins if you're not the primary super admin */}
-                                      {(user._id || user.id) !== (currentUser?._id?.toString() || currentUser?.id) && 
+                          <TableCell>
+                        {/* Don't allow deleting the current user or other super admins if you're not the primary super admin */}
+                          {(user._id || user.id) !== (currentUser?._id?.toString() || currentUser?.id) && 
                              (user.role !== 'super_admin' || (currentUser?.id === 1 || currentUser?._id === '1')) && (
                               <Button
                                 variant="ghost"
@@ -267,8 +234,14 @@ const UserManagement = () => {
           )}
         </main>
       </div>
-      
-      {/* Add Admin dialog */}
+    );
+  }
+
+  /**
+   * Function to add the admin dialog
+   */
+  function addAdminDialog(){
+    return (
       <Dialog open={showAddAdminDialog} onOpenChange={setShowAddAdminDialog}>
         <DialogContent>
           <DialogHeader>
@@ -276,8 +249,7 @@ const UserManagement = () => {
             <DialogDescription>
               Create a new admin user. Admins can create and manage their own forms.
             </DialogDescription>
-          </DialogHeader>
-          
+          </DialogHeader> 
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
               <FormField
@@ -292,8 +264,7 @@ const UserManagement = () => {
                     <FormMessage />
                   </FormItem>
                 )}
-              />
-              
+              /> 
               <FormField
                 control={form.control}
                 name="email"
@@ -307,7 +278,6 @@ const UserManagement = () => {
                   </FormItem>
                 )}
               />
-              
               <FormField
                 control={form.control}
                 name="password"
@@ -320,8 +290,7 @@ const UserManagement = () => {
                     <FormMessage />
                   </FormItem>
                 )}
-              />
-              
+              /> 
               <FormField
                 control={form.control}
                 name="confirmPassword"
@@ -335,7 +304,6 @@ const UserManagement = () => {
                   </FormItem>
                 )}
               />
-              
               <DialogFooter>
                 <Button
                   type="button"
@@ -355,8 +323,14 @@ const UserManagement = () => {
           </Form>
         </DialogContent>
       </Dialog>
-      
-      {/* Delete confirmation dialog */}
+    );
+  }
+
+  /**
+   * Function to delete the admin 
+   */
+  function delAdminDialog(){
+    return(
       <Dialog open={!!confirmDelete} onOpenChange={() => setConfirmDelete(null)}>
         <DialogContent>
           <DialogHeader>
@@ -382,6 +356,39 @@ const UserManagement = () => {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+    )
+  }
+  
+  return (
+    <div className="flex h-screen overflow-hidden bg-gray-50">
+      {/* Mobile menu button */}
+      <div className="md:hidden absolute top-4 left-4 z-50">
+        <button
+          className="p-2 rounded-md text-gray-500 hover:text-gray-700 hover:bg-gray-100 focus:outline-none"
+          onClick={toggleMobileMenu}
+        >
+          <Icons.Menu />
+        </button>
+      </div>
+      {/* Mobile sidebar */}
+      {isMobileMenuOpen && (
+        <div className="fixed inset-0 z-40 md:hidden">
+          <div className="fixed inset-0 bg-gray-600 bg-opacity-75" onClick={() => setIsMobileMenuOpen(false)}></div>
+          <div className="relative flex-1 flex flex-col max-w-xs w-full bg-white h-full">
+            <Sidebar isMobile={true} closeMobileMenu={() => setIsMobileMenuOpen(false)} />
+          </div>
+        </div>
+      )}
+      {/* Desktop sidebar */}
+      <div className="hidden md:flex md:flex-shrink-0">
+        <Sidebar />
+      </div>
+      {/* Main content */}
+      {renderMainContent()}
+      {/* Add Admin dialog */}
+      {addAdminDialog()}
+      {/* Delete confirmation dialog */}
+      {delAdminDialog()}
     </div>
   );
 };

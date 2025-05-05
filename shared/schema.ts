@@ -25,7 +25,7 @@ export const forms = pgTable("forms", {
   name: text("name").notNull(),
   description: text("description"),
   schema: jsonb("schema").notNull(), // JSON structure of the form
-  userId: integer("user_id").notNull(), // Creator of the form
+  userId: text("user_id").notNull(), // Changed from integer to text to support MongoDB ObjectId strings
   status: text("status").notNull().default("draft"), // 'draft' or 'published'
   publishedUrl: text("published_url"), // URL when published
   createdAt: timestamp("created_at").defaultNow().notNull(),
@@ -44,7 +44,7 @@ export const insertFormSchema = createInsertSchema(forms).pick({
 // Form submissions schema
 export const submissions = pgTable("submissions", {
   id: serial("id").primaryKey(),
-  formId: integer("form_id").notNull(),
+  formId: text("form_id").notNull(),
   data: jsonb("data").notNull(), // Submitted form data
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });

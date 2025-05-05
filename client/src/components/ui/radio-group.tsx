@@ -2,15 +2,24 @@ import * as React from "react"
 import * as RadioGroupPrimitive from "@radix-ui/react-radio-group"
 import { Circle } from "lucide-react"
 
-import { cn } from "@/lib/utils"
+function cn(...classes: (string | undefined)[]) {
+  return classes.filter(Boolean).join(' ')
+}
+
+interface RadioGroupProps extends React.ComponentPropsWithoutRef<typeof RadioGroupPrimitive.Root> {
+  inline?: boolean
+  style?: React.CSSProperties
+}
 
 const RadioGroup = React.forwardRef<
   React.ElementRef<typeof RadioGroupPrimitive.Root>,
-  React.ComponentPropsWithoutRef<typeof RadioGroupPrimitive.Root>
->(({ className, ...props }, ref) => {
+  RadioGroupProps
+>(({ className, inline = false, style, ...props }, ref) => {
+  const inlineStyle = inline ? { display: 'flex', ...style } : style;
   return (
     <RadioGroupPrimitive.Root
-      className={cn("grid gap-2", className)}
+      className={inline ? cn("d-flex", className) : cn("grid gap-2", className)}
+      style={inlineStyle}
       {...props}
       ref={ref}
     />

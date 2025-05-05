@@ -12,13 +12,15 @@ import PublicForm from "@/pages/PublicForm";
 import Login from "@/pages/Login";
 import Register from "@/pages/Register";
 import Settings from "@/pages/Settings";
+import IndividualFormList from "@/pages/IndividualFormList";
 import { useAuth, AuthProvider } from "./contexts/AuthContext";
 import { FormBuilderProvider } from "./contexts/FormBuilderContext";
+
+export const SERVER_URL = 'http://localhost:5000';
 
 function PrivateRoute({ component }: { component: React.ReactNode }) {
   try {
     const { isAuthenticated, isLoading } = useAuth();
-    
     // Show loading indicator while checking authentication
     if (isLoading) {
       return (
@@ -27,11 +29,9 @@ function PrivateRoute({ component }: { component: React.ReactNode }) {
         </div>
       );
     }
-    
     if (!isAuthenticated) {
       return <Login />;
     }
-    
     return <>{component}</>;
   } catch (error) {
     console.error("Auth error in PrivateRoute:", error);
@@ -48,8 +48,8 @@ function Router() {
       <Route path="/" component={() => <PrivateRoute component={<Dashboard />} />} />
       <Route path="/forms" component={() => <PrivateRoute component={<FormsList />} />} />
       <Route path="/forms/new" component={() => <PrivateRoute component={<FormBuilder />} />} />
-      <Route path="/forms/edit/:id" component={({ params }) => <PrivateRoute component={<FormBuilder id={params.id} />} />} />
-      <Route path="/forms/:id/responses" component={({ params }) => <PrivateRoute component={<ResponsesList formId={params.id} />} />} />
+      <Route path="/forms/edit/:id" component={({ params }) => <PrivateRoute component={<FormBuilder formId={params.id} />} />} />
+      <Route path="/forms/:id/responses" component={({ params }) => <PrivateRoute component={<IndividualFormList formId={params.id} />} />} />
       <Route path="/responses" component={() => <PrivateRoute component={<ResponsesList />} />} />
       <Route path="/users" component={() => <PrivateRoute component={<UserManagement />} />} />
       <Route path="/public-form/:id" component={({ params }) => <PublicForm id={params.id} />} />
