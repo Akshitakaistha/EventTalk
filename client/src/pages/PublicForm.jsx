@@ -321,9 +321,38 @@ const PublicForm = () => {
                             className="border border-gray-300 text-gray-700 text-sm rounded-full flex items-center px-4 py-2 hover:bg-gray-100 transition"
                             onClick={() => {
                               const url = `${window.location.origin}/public-form/${form._id}`;
-                              navigator.clipboard.writeText(url);
-                              toast({ title: 'Success', description: 'Form URL copied to clipboard!' });
-                            }}
+                            
+                              if (navigator.clipboard && navigator.clipboard.writeText) {
+                                navigator.clipboard.writeText(url)
+                                  .then(() => {
+                                    toast({ title: 'Success', description: 'Form URL copied to clipboard!' });
+                                  })
+                                  .catch(() => {
+                                    toast({ title: 'Error', description: 'Clipboard write failed' });
+                                  });
+                              } else {
+                                // fallback method for HTTP or unsupported browsers
+                                const textarea = document.createElement('textarea');
+                                textarea.value = url;
+                                textarea.style.position = 'fixed';
+                                document.body.appendChild(textarea);
+                                textarea.focus();
+                                textarea.select();
+                            
+                                try {
+                                  const successful = document.execCommand('copy');
+                                  if (successful) {
+                                    toast({ title: 'Success', description: 'Form URL copied to clipboard!' });
+                                  } else {
+                                    toast({ title: 'Error', description: 'Clipboard fallback failed' });
+                                  }
+                                } catch (err) {
+                                  toast({ title: 'Error', description: 'Clipboard fallback failed' });
+                                }
+                            
+                                document.body.removeChild(textarea);
+                              }
+                            }}    
                           >
                             <Icons.Copy className="mr-2 h-4 w-4" />
                           </button>
