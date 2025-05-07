@@ -188,9 +188,38 @@ const FormsList = () => {
                   className="flex-1" 
                   onClick={() => {
                     const url = `${window.location.origin}/public-form/${form._id}`;
-                    navigator.clipboard.writeText(url);
-                    toast({ title: 'Success', description: 'Form URL copied to clipboard!' });
-                  }}
+                  
+                    if (navigator.clipboard && navigator.clipboard.writeText) {
+                      navigator.clipboard.writeText(url)
+                        .then(() => {
+                          toast({ title: 'Success', description: 'Form URL copied to clipboard!' });
+                        })
+                        .catch(() => {
+                          toast({ title: 'Error', description: 'Clipboard write failed' });
+                        });
+                    } else {
+                      // fallback method for HTTP or unsupported browsers
+                      const textarea = document.createElement('textarea');
+                      textarea.value = url;
+                      textarea.style.position = 'fixed';
+                      document.body.appendChild(textarea);
+                      textarea.focus();
+                      textarea.select();
+                  
+                      try {
+                        const successful = document.execCommand('copy');
+                        if (successful) {
+                          toast({ title: 'Success', description: 'Form URL copied to clipboard!' });
+                        } else {
+                          toast({ title: 'Error', description: 'Clipboard fallback failed' });
+                        }
+                      } catch (err) {
+                        toast({ title: 'Error', description: 'Clipboard fallback failed' });
+                      }
+                  
+                      document.body.removeChild(textarea);
+                    }
+                  }}                  
                 >
                   <Icons.Copy className="mr-1 h-4 w-4" /> Copy URL
                 </Button>
