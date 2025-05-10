@@ -48,8 +48,6 @@ const PublishModal = ({ onClose, formId, publishedUrl, formState }) => {
 
 
   const handleCopyLink = () => {
-  const url = `${window.location.origin}/public-form/${form._id}`;
-
   copyToClipboard(url)
     .then(() => {
       toast({ title: 'Success', description: 'Form URL copied to clipboard!' });
