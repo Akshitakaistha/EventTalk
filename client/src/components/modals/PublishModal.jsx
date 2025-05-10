@@ -20,7 +20,7 @@ const PublishModal = ({ onClose, formId, publishedUrl, formState }) => {
     setQrCodeUrl(`https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(url)}`);
   }, [formId, publishedUrl]);
   
-  const copyToClipboard = (text: string) => {
+  const copyToClipboard = (text) => { 
   if (navigator.clipboard && window.isSecureContext) {
     return navigator.clipboard.writeText(text);
   } else {
@@ -33,7 +33,7 @@ const PublishModal = ({ onClose, formId, publishedUrl, formState }) => {
     textarea.focus();
     textarea.select();
     
-    return new Promise<boolean>((resolve, reject) => {
+    return new Promise((resolve, reject) => {
       try {
         const success = document.execCommand('copy');
         document.body.removeChild(textarea);
