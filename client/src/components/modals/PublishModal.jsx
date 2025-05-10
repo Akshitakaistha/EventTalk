@@ -20,29 +20,44 @@ const PublishModal = ({ onClose, formId, publishedUrl, formState }) => {
     setQrCodeUrl(`https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(url)}`);
   }, [formId, publishedUrl]);
   
+  const copyToClipboard = (text: string) => {
+  if (navigator.clipboard && window.isSecureContext) {
+    return navigator.clipboard.writeText(text);
+  } else {
+    // Fallback for non-HTTPS or unsupported browsers
+    const textarea = document.createElement('textarea');
+    textarea.value = text;
+    textarea.style.position = 'fixed'; // avoid scrolling to bottom
+    textarea.style.left = '-9999px';
+    document.body.appendChild(textarea);
+    textarea.focus();
+    textarea.select();
+    
+    return new Promise<boolean>((resolve, reject) => {
+      try {
+        const success = document.execCommand('copy');
+        document.body.removeChild(textarea);
+        success ? resolve(true) : reject(false);
+      } catch (err) {
+        document.body.removeChild(textarea);
+        reject(err);
+      }
+    });
+  }
+};
+
+
   const handleCopyLink = () => {
-    navigator.clipboard.writeText(shareUrl)
-      .then(() => {
-        setCopied(true);
-        toast({
-          title: 'Success',
-          description: 'Link copied to clipboard!',
-        });
-        
-        // Reset the "Copied!" text after 2 seconds
-        setTimeout(() => {
-          setCopied(false);
-        }, 2000);
-      })
-      .catch(err => {
-        console.error('Error copying to clipboard:', err);
-        toast({
-          title: 'Error',
-          description: 'Failed to copy link. Please try again.',
-          variant: 'destructive'
-        });
-      });
-  };
+  const url = `${window.location.origin}/public-form/${form._id}`;
+
+  copyToClipboard(url)
+    .then(() => {
+      toast({ title: 'Success', description: 'Form URL copied to clipboard!' });
+    })
+    .catch(() => {
+      toast({ title: 'Error', description: 'Failed to copy link. Please try manually.' });
+    });
+};
   
   const handleViewForm = () => {
     window.open(shareUrl, '_blank');
