@@ -20,43 +20,55 @@ const PublishModal = ({ onClose, formId, publishedUrl, formState }) => {
     setQrCodeUrl(`https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(url)}`);
   }, [formId, publishedUrl]);
   
-  const copyToClipboard = (text) => { 
-  if (navigator.clipboard && window.isSecureContext) {
-    return navigator.clipboard.writeText(text);
-  } else {
-    // Fallback for non-HTTPS or unsupported browsers
-    const textarea = document.createElement('textarea');
-    textarea.value = text;
-    textarea.style.position = 'fixed'; // avoid scrolling to bottom
-    textarea.style.left = '-9999px';
-    document.body.appendChild(textarea);
-    textarea.focus();
-    textarea.select();
-    
-    return new Promise((resolve, reject) => {
-      try {
-        const success = document.execCommand('copy');
-        document.body.removeChild(textarea);
-        success ? resolve(true) : reject(false);
-      } catch (err) {
-        document.body.removeChild(textarea);
-        reject(err);
-      }
-    });
-  }
-};
-
-
   const handleCopyLink = () => {
-  copyToClipboard(url)
-    .then(() => {
-      toast({ title: 'Success', description: 'Form URL copied to clipboard!' });
-    })
-    .catch(() => {
-      toast({ title: 'Error', description: 'Failed to copy link. Please try manually.' });
-    });
-};
+    if (navigator.clipboard && window.isSecureContext) {
+      navigator.clipboard.writeText(shareUrl)
+        .then(() => {
+          setCopied(true);
+          toast({
+            title: 'Success',
+            description: 'Link copied to clipboard!',
+          });
+          setTimeout(() => setCopied(false), 2000);
+        })
+        .catch((err) => {
+          console.error('Clipboard error:', err);
+          fallbackCopyTextToClipboard(shareUrl);
+        });
+    } else {
+      fallbackCopyTextToClipboard(shareUrl);
+    }
+  };
   
+  const fallbackCopyTextToClipboard = (text) => {
+    const textArea = document.createElement("textarea");
+    textArea.value = text;
+    textArea.style.position = "fixed"; // avoid scrolling to bottom
+    document.body.appendChild(textArea);
+    textArea.focus();
+    textArea.select();
+    
+    try {
+      const successful = document.execCommand('copy');
+      setCopied(true);
+      toast({
+        title: 'Success',
+        description: 'Link copied to clipboard!',
+      });
+      setTimeout(() => setCopied(false), 2000);
+    } catch (err) {
+      console.error('Fallback: Oops, unable to copy', err);
+      toast({
+        title: 'Error',
+        description: 'Failed to copy link. Please try manually.',
+        variant: 'destructive',
+      });
+    }
+  
+    document.body.removeChild(textArea);
+  };
+  
+
   const handleViewForm = () => {
     window.open(shareUrl, '_blank');
   };
