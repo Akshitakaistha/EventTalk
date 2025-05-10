@@ -244,10 +244,39 @@ const PublicForm = () => {
                             type="button"
                             className="border border-gray-300 text-gray-700 text-sm rounded-full flex items-center px-4 py-2 hover:bg-gray-100 transition"
                             onClick={() => {
-                              const url = `${window.location.origin}/public-form/${form._id}`;
-                              navigator.clipboard.writeText(url);
-                              toast({ title: 'Success', description: 'Form URL copied to clipboard!' });
-                            }}
+    const url = `${window.location.origin}/public-form/${form._id}`;
+
+    // Try modern clipboard API first
+    if (navigator.clipboard && window.isSecureContext) {
+      navigator.clipboard.writeText(url)
+        .then(() => {
+          toast({ title: 'Success', description: 'Form URL copied to clipboard!' });
+        })
+        .catch(() => {
+          fallbackCopy(url);
+        });
+    } else {
+      // Use fallback if navigator.clipboard is not available
+      fallbackCopy(url);
+    }
+
+    function fallbackCopy(text) {
+      const textarea = document.createElement('textarea');
+      textarea.value = text;
+      textarea.setAttribute('readonly', '');
+      textarea.style.position = 'absolute';
+      textarea.style.left = '-9999px';
+      document.body.appendChild(textarea);
+      textarea.select();
+      try {
+        document.execCommand('copy');
+        toast({ title: 'Success', description: 'Form URL copied to clipboard!' });
+      } catch (err) {
+        toast({ title: 'Error', description: 'Failed to copy URL' });
+      }
+      document.body.removeChild(textarea);
+    }
+  }}
                           >
                             <Icons.Copy className="mr-2 h-4 w-4" />
                           </button>
