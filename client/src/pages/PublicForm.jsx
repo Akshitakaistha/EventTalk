@@ -268,7 +268,7 @@ const PublicForm = () => {
                           {form?.name || 'Untitled Form'}
                         </h2>
                       {form?.description && (
-                        <CardDescription className="text-center mt-2 text-sm text-gray-500">
+                        <CardDescription className="text-center mt-2 text-sm text-gray-500 text-center">
                           {form.description}
                         </CardDescription>
                       )}
@@ -374,7 +374,7 @@ const PublicForm = () => {
                           {form?.name || 'Untitled Form'}
                         </h2>
                       {form?.description && (
-                        <CardDescription className="mt-2 text-sm text-gray-500">
+                        <CardDescription className="mt-2 text-sm text-gray-500 text-center">
                           {form.description}
                         </CardDescription>
                       )}
