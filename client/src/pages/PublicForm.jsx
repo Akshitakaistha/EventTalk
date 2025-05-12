@@ -183,8 +183,9 @@ const PublicForm = () => {
           {hasBannerComponent ? (
             // Banner-enabled form layout (2-column)
             <div className="bg-white rounded-lg shadow-sm mb-6">
-              <div className={`${bannerField?.position === 'top' ? 'w-full flex-col px-5 py-3' : 'w-full'} flex h-full relative`}>
-                {/* Banner Upload Area (Left side) */}
+{/*               <div className={`${bannerField?.position === 'top' ? 'w-full flex-col px-5 py-3' : 'w-full'} flex h-full relative`}> */}
+              <div className={`${bannerField?.position === 'top' ? 'w-full flex-col px-5 py-3' : 'w-full flex-col md:flex-row'} flex h-full relative`}> 
+              {/* Banner Upload Area (Left side) */}
                 <div 
                   className={`${
                     bannerField?.position === 'top' ? 'h-[calc(100vh-25px)] w-full' : 'h-full md:w-1/2'
