@@ -308,7 +308,7 @@ const PublicForm = () => {
                     <div key={field.id} className={`form-field px-3 ${field.gridColumn === 'half' ? 'md:w-1/2 md:pr-3 md:inline-block' : 'w-full'}`}>
                       {!field.hideLabel && (
                         <>
-                          <label className={`${((field.label === 'Mobile Number') || (field.label === 'Resume Upload')) && 'hidden'} block text-sm font-medium text-gray-700`}>
+                          <label className={`${((field.label === 'Mobile Number') || (field.label === 'Resume Upload') || (field.type === 'checkbox')) && 'hidden'} block text-sm font-medium text-gray-700`}>
                             {field.label}
                             {field.required && <span className="text-red-500 ml-1">*</span>}
                           </label>
@@ -414,7 +414,7 @@ const PublicForm = () => {
                     <div key={field.id} className={`form-field ${field.gridColumn === 'half' ? 'md:w-1/2 md:pr-3 md:inline-block' : 'w-full'}`}>
                       {!field.hideLabel && (
                         <>
-                          <label className={`${(field.label === 'Mobile Number') && 'hidden'} block text-sm font-medium text-gray-700`}>
+                          <label className={`${((field.label === 'Mobile Number') || (field.type === 'checkbox')) && 'hidden'} block text-sm font-medium text-gray-700`}>
                             {field.label}
                             {field.required && <span className="text-red-500 ml-1">*</span>}
                           </label>
