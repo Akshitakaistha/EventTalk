@@ -150,7 +150,7 @@ const FormComponents = ({ field, isPreview, onChange = () => {}, onCheckboxChang
             }}
             disabled={!isPreview}
           />
-          <span className="ml-2 text-sm text-gray-700">{field.toggleLabel || 'Enable'}</span>
+          <span className="ml-2 text-sm text-gray-700">{field?.label || 'Enable'}</span>
         </div>
       );
 
