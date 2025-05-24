@@ -245,7 +245,7 @@ const PreviewModal = ({ onClose, formFields, formName }) => {
                     <div key={field.id} className={`form-field ${field.gridColumn === 'half' ? 'md:w-1/2 md:pr-3 md:inline-block' : 'w-full'}`}>
                       {!field.hideLabel && (
                         <>
-                          <label className={`${((field.label === 'Mobile Number') || (field.label === 'Resume Upload')) && 'hidden' } block text-sm font-medium text-gray-700 mb-1`}>{field.label || `Untitled ${field.type}`}</label>
+                          <label className={`${((field.label === 'Mobile Number') || (field.label === 'Resume Upload') || (field.type === 'checkbox') || (field.type === 'toggle')) && 'hidden' } block text-sm font-medium text-gray-700 mb-1`}>{field.label || `Untitled ${field.type}`}</label>
                           {field.helperText && <p className="text-xs text-gray-500 mb-1">{field.helperText}</p>}
                         </>
                       )}
