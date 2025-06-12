@@ -81,10 +81,12 @@ const PreviewModal = ({ onClose, formFields, formName }) => {
     alert('Form submitted successfully in preview mode!');
   };
   
-  // Check if we have a banner component
+  // Check if we have banner or PDF components
   const hasBannerComponent = formFields.some(field => field.type === 'bannerUpload');
+  const hasPdfComponent = formFields.some(field => field.type === 'pdfUpload');
   const bannerField = formFields.find(field => field.type === 'bannerUpload');
-  const regularFields = formFields.filter(field => field.type !== 'bannerUpload');
+  const pdfField = formFields.find(field => field.type === 'pdfUpload');
+  const regularFields = formFields.filter(field => field.type !== 'bannerUpload' && field.type !== 'pdfUpload');
 
   return (
     <div className="fixed inset-0 z-50 bg-white overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">

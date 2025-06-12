@@ -152,26 +152,28 @@ const PropertyEditor = () => {
             </div>
             
             <div className="mt-4">
-              <label className="block text-sm font-medium text-gray-700 mb-2">Upload Banner</label>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                {isBannerField ? 'Upload Banner' : 'Upload PDF'}
+              </label>
               <div className="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-md">
                 <div className="space-y-1 text-center">
                   <div className="flex text-sm text-gray-600">
-                    <label htmlFor="banner-upload" className="relative cursor-pointer bg-white rounded-md font-medium text-primary-600 hover:text-primary-500 focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-primary-500">
+                    <label htmlFor={`${activeField.type}-upload`} className="relative cursor-pointer bg-white rounded-md font-medium text-primary-600 hover:text-primary-500 focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-primary-500">
                       <span>Upload a file</span>
                       <input 
-                        id="banner-upload" 
-                        name="banner-upload" 
+                        id={`${activeField.type}-upload`} 
+                        name={`${activeField.type}-upload`} 
                         type="file" 
                         className="sr-only"
-                        accept="image/*"
+                        accept={isBannerField ? "image/*" : "application/pdf"}
                         onChange={(e) => {
                           const file = e.target.files?.[0];
                           if (file) {
-                            // Handle file upload here
                             const reader = new FileReader();
                             reader.onload = (e) => {
+                              const urlProperty = isBannerField ? 'bannerUrl' : 'pdfUrl';
                               updateFieldProperties(activeField.id, {
-                                bannerUrl: e.target?.result
+                                [urlProperty]: e.target?.result
                               });
                             };
                             reader.readAsDataURL(file);
@@ -180,15 +182,26 @@ const PropertyEditor = () => {
                       />
                     </label>
                   </div>
-                  <p className="text-xs text-gray-500">PNG, JPG, GIF up to 10MB</p>
+                  <p className="text-xs text-gray-500">
+                    {isBannerField ? 'PNG, JPG, GIF up to 10MB' : 'PDF up to 10MB'}
+                  </p>
                 </div>
               </div>
-              {activeField.bannerUrl && (
+              {(isBannerField && activeField.bannerUrl) && (
                 <div className="mt-2">
                   <img 
                     src={activeField.bannerUrl} 
                     alt="Banner preview" 
                     className="h-32 w-full object-cover rounded-md"
+                  />
+                </div>
+              )}
+              {(isPdfField && activeField.pdfUrl) && (
+                <div className="mt-2">
+                  <iframe 
+                    src={activeField.pdfUrl} 
+                    title="PDF preview" 
+                    className="h-32 w-full border rounded-md"
                   />
                 </div>
               )}

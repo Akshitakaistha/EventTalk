@@ -559,6 +559,10 @@ const FormComponents = ({ field, isPreview, onChange = () => {}, onCheckboxChang
       // This is handled in the FormCanvas component
       return null;
 
+    case 'pdfUpload':
+      // This is handled in the FormCanvas component
+      return null;
+
     default:
       return <p className="text-sm text-gray-500">Unknown field type: {field.type}</p>;
   }
