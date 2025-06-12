@@ -13,6 +13,7 @@ const PropertyEditor = () => {
   // Special handling for banner position and PDF upload
   const isBannerField = activeField?.type === 'bannerUpload';
   const isPdfField = activeField?.type === 'pdfUpload';
+  const isCarouselField = activeField?.type === 'carouselUpload';
   
   const handleInputChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -37,6 +38,53 @@ const PropertyEditor = () => {
     const newOptions = [...activeField.options];
     newOptions.splice(index, 1);
     updateFieldProperties(activeField.id, { options: newOptions });
+  };
+
+  // Handle carousel image uploads
+  const handleCarouselImageUpload = (e) => {
+    const files = Array.from(e.target.files);
+    const currentImages = activeField.images || [];
+    const maxImages = activeField.maxImages || 8;
+    
+    if (currentImages.length + files.length > maxImages) {
+      alert(`Maximum ${maxImages} images allowed`);
+      return;
+    }
+
+    files.forEach(file => {
+      if (file.type !== 'image/png') {
+        alert('Only PNG images are allowed');
+        return;
+      }
+      
+      if (file.size > (activeField.maxFileSize || 5) * 1024 * 1024) {
+        alert(`File size must be less than ${activeField.maxFileSize || 5}MB`);
+        return;
+      }
+
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        const newImage = {
+          src: event.target.result,
+          preview: event.target.result,
+          dataUrl: event.target.result,
+          fileName: file.name,
+          fileType: file.type,
+          alt: `Carousel image ${currentImages.length + 1}`
+        };
+        
+        updateFieldProperties(activeField.id, {
+          images: [...currentImages, newImage]
+        });
+      };
+      reader.readAsDataURL(file);
+    });
+  };
+
+  const removeCarouselImage = (index) => {
+    const newImages = [...(activeField.images || [])];
+    newImages.splice(index, 1);
+    updateFieldProperties(activeField.id, { images: newImages });
   };
 
   if (!activeField) {
@@ -465,6 +513,159 @@ const PropertyEditor = () => {
               >
                 Add Option
               </button>
+            </div>
+          </div>
+        )}
+
+        {/* Carousel Upload Properties */}
+        {isCarouselField && (
+          <div className="mb-4">
+            <h3 className="text-sm font-medium text-gray-700 mb-3">Carousel Settings</h3>
+            
+            {/* Position Setting */}
+            <div className="mb-3">
+              <label className="block text-xs font-medium text-gray-700 mb-1">Position</label>
+              <select 
+                name="position"
+                value={activeField.position || 'left'} 
+                onChange={handleInputChange}
+                className="block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm"
+              >
+                <option value="left">Left Side</option>
+                <option value="top">Top (Full Width)</option>
+              </select>
+            </div>
+
+            {/* Auto-advance timing */}
+            <div className="mb-3">
+              <label className="block text-xs font-medium text-gray-700 mb-1">Auto-advance Time (seconds)</label>
+              <input 
+                type="number"
+                name="autoAdvanceTime"
+                value={(activeField.autoAdvanceTime || 20000) / 1000}
+                onChange={(e) => {
+                  const seconds = parseInt(e.target.value) || 20;
+                  updateFieldProperties(activeField.id, { autoAdvanceTime: seconds * 1000 });
+                }}
+                min="5"
+                max="120"
+                className="block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm"
+              />
+            </div>
+
+            {/* Show dots setting */}
+            <div className="flex items-center justify-between mb-3">
+              <label className="block text-xs text-gray-700">Show Pagination Dots</label>
+              <div className="ml-2">
+                <Switch
+                  checked={activeField.showDots !== false}
+                  onCheckedChange={(checked) => {
+                    updateFieldProperties(activeField.id, { showDots: checked });
+                  }}
+                />
+              </div>
+            </div>
+
+            {/* Max images setting */}
+            <div className="mb-3">
+              <label className="block text-xs font-medium text-gray-700 mb-1">Maximum Images</label>
+              <input 
+                type="number"
+                name="maxImages"
+                value={activeField.maxImages || 8}
+                onChange={(e) => {
+                  const maxImages = parseInt(e.target.value) || 8;
+                  updateFieldProperties(activeField.id, { maxImages: Math.min(maxImages, 8) });
+                }}
+                min="1"
+                max="8"
+                className="block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm"
+              />
+            </div>
+
+            {/* Image Upload Section */}
+            <div className="mb-3">
+              <label className="block text-xs font-medium text-gray-700 mb-2">Carousel Images ({(activeField.images || []).length}/{activeField.maxImages || 8})</label>
+              
+              {/* Upload Button */}
+              <div className="mb-3">
+                <label className="cursor-pointer inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500">
+                  <Icons.CarouselUpload />
+                  <span className="ml-2">Upload PNG Images</span>
+                  <input
+                    type="file"
+                    multiple
+                    accept="image/png"
+                    onChange={handleCarouselImageUpload}
+                    className="sr-only"
+                    disabled={(activeField.images || []).length >= (activeField.maxImages || 8)}
+                  />
+                </label>
+                <p className="text-xs text-gray-500 mt-1">PNG only, max {activeField.maxFileSize || 5}MB each</p>
+              </div>
+
+              {/* Image List */}
+              {activeField.images && activeField.images.length > 0 && (
+                <div className="space-y-2">
+                  {activeField.images.map((image, index) => (
+                    <div key={index} className="flex items-center space-x-2 p-2 border border-gray-200 rounded">
+                      <img 
+                        src={image.preview || image.src} 
+                        alt={image.alt || `Image ${index + 1}`}
+                        className="w-12 h-12 object-cover rounded"
+                      />
+                      <div className="flex-1">
+                        <p className="text-xs font-medium text-gray-700">{image.fileName}</p>
+                        <p className="text-xs text-gray-500">{index + 1} of {activeField.images.length}</p>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => removeCarouselImage(index)}
+                        className="p-1 text-gray-400 hover:text-red-600"
+                      >
+                        <Icons.Delete />
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            {/* Upload permissions */}
+            <div className="space-y-2">
+              <div className="flex items-center justify-between">
+                <label className="block text-xs text-gray-700">Allow Upload</label>
+                <div className="ml-2">
+                  <Switch
+                    checked={activeField.canUpload !== false}
+                    onCheckedChange={(checked) => {
+                      updateFieldProperties(activeField.id, { canUpload: checked });
+                    }}
+                  />
+                </div>
+              </div>
+              <div className="flex items-center justify-between">
+                <label className="block text-xs text-gray-700">Allow Download</label>
+                <div className="ml-2">
+                  <Switch
+                    checked={activeField.canDownload !== false}
+                    onCheckedChange={(checked) => {
+                      updateFieldProperties(activeField.id, { canDownload: checked });
+                    }}
+                  />
+                </div>
+              </div>
+              <div className="flex items-center justify-between">
+                <label className="block text-xs text-gray-700">Allow View</label>
+                <div className="ml-2">
+                  <Switch
+                    checked={activeField.canView !== false}
+                    onCheckedChange={(checked) => {
+                      updateFieldProperties(activeField.id, { canView: checked });
+                    }}
+                  />
+                </div>
+              </div>
             </div>
           </div>
         )}

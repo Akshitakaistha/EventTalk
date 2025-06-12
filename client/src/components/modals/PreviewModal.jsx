@@ -5,6 +5,7 @@ import FormComponents from '@/components/form-builder/FormComponents';
 import { Icons } from '@/components/ui/ui-icons';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { useFormBuilder } from '@/contexts/FormBuilderContext';
+import ImageCarousel from '@/components/ui/image-carousel';
 
 const PreviewModal = ({ onClose, formFields, formName }) => {
   const { formState } = useFormBuilder();
