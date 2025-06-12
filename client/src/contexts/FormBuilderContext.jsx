@@ -196,6 +196,11 @@ export const FormBuilderProvider = ({ children }) => {
     if (fieldType === 'bannerUpload' && hasBannerComponent) {
       return;
     }
+    
+    // Special handling for pdfUpload - only allow one per form
+    if (fieldType === 'pdfUpload' && hasPdfComponent) {
+      return;
+    }
 
     // Update form state with new field
     setFormState(prev => ({
@@ -278,6 +283,7 @@ export const FormBuilderProvider = ({ children }) => {
     formState,
     setFormState,
     hasBannerComponent,
+    hasPdfComponent,
     addField,
     getActiveField,
     setActiveField,

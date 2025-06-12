@@ -10,8 +10,9 @@ const PropertyEditor = () => {
   const [showValidationOptions, setShowValidationOptions] = useState(false);
   const [showAdvancedOptions, setShowAdvancedOptions] = useState(false);
   
-  // Special handling for banner position
+  // Special handling for banner position and PDF upload
   const isBannerField = activeField?.type === 'bannerUpload';
+  const isPdfField = activeField?.type === 'pdfUpload';
   
   const handleInputChange = (e) => {
     const { name, value, type, checked } = e.target;
