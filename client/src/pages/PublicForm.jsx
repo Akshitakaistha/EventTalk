@@ -171,28 +171,30 @@ const PublicForm = () => {
     );
   }
   
-  // Check if we have a banner component
+  // Check if we have banner or PDF components
   const hasBannerComponent = form?.schema.fields.some(field => field.type === 'bannerUpload');
+  const hasPdfComponent = form?.schema.fields.some(field => field.type === 'pdfUpload');
   const bannerField = form?.schema.fields.find(field => field.type === 'bannerUpload');
-  const regularFields = form?.schema.fields.filter(field => field.type !== 'bannerUpload') || [];
+  const pdfField = form?.schema.fields.find(field => field.type === 'pdfUpload');
+  const regularFields = form?.schema.fields.filter(field => field.type !== 'bannerUpload' && field.type !== 'pdfUpload') || [];
   
   return (
     <div className="min-h-screen bg-gray-50 py-2 px-2 sm:px-6 lg:px-8">
       <div className="max-w-full">
         <form onSubmit={handleSubmit} className="flex flex-col h-[calc(100vh-30px)]">
-          {hasBannerComponent ? (
-            // Banner-enabled form layout (2-column)
+          {hasBannerComponent || hasPdfComponent ? (
+            // Special component-enabled form layout (banner or PDF)
             <div className="bg-white rounded-lg shadow-sm mb-6">
-{/*               <div className={`${bannerField?.position === 'top' ? 'w-full flex-col px-5 py-3' : 'w-full'} flex h-full relative`}> */}
-              <div className={`${bannerField?.position === 'top' ? 'w-full flex-col px-5 py-3' : 'w-full flex-col md:flex-row'} flex h-full relative`}> 
-              {/* Banner Upload Area (Left side) */}
+              <div className={`${(bannerField?.position === 'top' || pdfField?.position === 'top') ? 'w-full flex-col px-5 py-3' : 'w-full flex-col md:flex-row'} flex h-full relative`}> 
+              {/* Special Component Display Area (Banner or PDF) */}
                 <div 
                   className={`${
-                    bannerField?.position === 'top' ? 'h-[calc(100vh-25px)] w-full' : 'h-full md:w-1/2'
+                    (bannerField?.position === 'top' || pdfField?.position === 'top') ? 'h-[calc(100vh-25px)] w-full' : 'h-full md:w-1/2'
                   } relative`} 
-                  style={{ height: 'calc(100vh - 25px)' }} // Banner height 25px less than screen height
+                  style={{ height: 'calc(100vh - 25px)' }} // Component height 25px less than screen height
                 >
-                  {(bannerField?.bannerUrl || formValues[bannerField?.id]?.preview) ? (
+                  {/* Banner Component Display */}
+                  {bannerField && (bannerField?.bannerUrl || formValues[bannerField?.id]?.preview) ? (
                     <div className="w-full h-full">
                       <img 
                         src={formValues[bannerField?.id]?.preview || bannerField.bannerUrl} 
@@ -200,8 +202,8 @@ const PublicForm = () => {
                         className="w-full h-full object-fill p-2"
                       />
                     </div>
-                  ) : (
-                    <>
+                  ) : bannerField && !bannerField?.bannerUrl && !formValues[bannerField?.id]?.preview ? (
+                    <div className="w-full h-full flex flex-col items-center justify-center bg-gray-50 border-2 border-dashed border-gray-300 rounded-md p-6">
                       <Icons.BannerUpload />
                       <p className="mt-2 text-sm text-gray-500">{bannerField?.label || 'Upload event banner'}</p>
                       <p className="text-xs text-gray-400 mt-1">{bannerField?.helperText || 'PNG, JPG, GIF up to 10MB'}</p>
@@ -232,11 +234,55 @@ const PublicForm = () => {
                           }}
                         />
                       </label>
-                    </>
-                  )}
+                    </div>
+                  ) : null}
+                  
+                  {/* PDF Component Display */}
+                  {pdfField && (pdfField?.pdfUrl || formValues[pdfField?.id]?.preview) ? (
+                    <div className="w-full h-full">
+                      <iframe 
+                        src={formValues[pdfField?.id]?.preview || pdfField.pdfUrl} 
+                        title="PDF Preview" 
+                        className="w-full h-full rounded-md border-0"
+                      />
+                    </div>
+                  ) : pdfField && !pdfField?.pdfUrl && !formValues[pdfField?.id]?.preview ? (
+                    <div className="w-full h-full flex flex-col items-center justify-center bg-gray-50 border-2 border-dashed border-gray-300 rounded-md p-6">
+                      <Icons.PdfUpload />
+                      <p className="mt-2 text-sm text-gray-500">{pdfField?.label || 'Upload PDF document'}</p>
+                      <p className="text-xs text-gray-400 mt-1">{pdfField?.helperText || 'PDF up to 10MB'}</p>
+                      <label className="mt-4 cursor-pointer px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500">
+                        Upload PDF
+                        <input 
+                          type="file" 
+                          className="sr-only" 
+                          accept="application/pdf" 
+                          onChange={(e) => {
+                            const file = e.target.files?.[0];
+                            if (file) {
+                              const reader = new FileReader();
+                              reader.onload = (event) => {
+                                if (event.target?.result) {
+                                  setFormValues(prev => ({
+                                    ...prev,
+                                    [pdfField.id]: {
+                                      file: file,
+                                      fileName: file.name,
+                                      preview: event.target.result
+                                    }
+                                  }));
+                                }
+                              };
+                              reader.readAsDataURL(file);
+                            }
+                          }}
+                        />
+                      </label>
+                    </div>
+                  ) : null}
                 </div>
                 {/* Form Fields (Right side) */}
-                <div className={`space-y-6 p-4 ${bannerField.position === 'top' ? 'w-full' : 'md:w-1/2'}`} style={{ overflowY: 'auto', height: 'calc(100vh - 25px)' }}>
+                <div className={`space-y-6 p-4 ${(bannerField?.position === 'top' || pdfField?.position === 'top') ? 'w-full' : 'md:w-1/2'}`} style={{ overflowY: 'auto', height: 'calc(100vh - 25px)' }}>
                   <Card className="mb-4 border-none shadow-none">
                     <CardHeader>
                       <div className="flex items-center justify-between flex-wrap w-full">

@@ -105,10 +105,12 @@ const PropertyEditor = () => {
           </div>
         )}
         
-        {isBannerField && (
+        {(isBannerField || isPdfField) && (
           <>
             <div className="mb-4">
-              <label className="block text-sm font-medium text-gray-700 mb-1">Banner Position</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                {isBannerField ? 'Banner Position' : 'PDF Position'}
+              </label>
               <select
                 name="position"
                 value={activeField.position || 'left'}
@@ -297,7 +299,7 @@ const PropertyEditor = () => {
                 </>
               )}
               
-              {(activeField.type === 'fileUpload' || activeField.type === 'mediaUpload') && (
+              {(activeField.type === 'fileUpload' || activeField.type === 'mediaUpload' || activeField.type === 'pdfUpload') && (
                 <>
                   <div>
                     <label className="block text-xs font-medium text-gray-700 mb-1">Allowed File Types</label>
