@@ -185,14 +185,14 @@ const PublicForm = () => {
     <div className="min-h-screen bg-gray-50 py-2 px-2 sm:px-6 lg:px-8">
       <div className="max-w-full">
         <form onSubmit={handleSubmit} className="flex flex-col h-[calc(100vh-30px)]">
-          {hasBannerComponent || hasPdfComponent ? (
-            // Special component-enabled form layout (banner or PDF)
+          {hasBannerComponent || hasPdfComponent || hasCarouselComponent ? (
+            // Special component-enabled form layout (banner, PDF, or carousel)
             <div className="bg-white rounded-lg shadow-sm mb-6">
-              <div className={`${(bannerField?.position === 'top' || pdfField?.position === 'top') ? 'w-full flex-col px-5 py-3' : 'w-full flex-col md:flex-row'} flex h-full relative`}> 
+              <div className={`${(bannerField?.position === 'top' || pdfField?.position === 'top' || carouselField?.position === 'top') ? 'w-full flex-col px-5 py-3' : 'w-full flex-col md:flex-row'} flex h-full relative`}> 
               {/* Special Component Display Area (Banner or PDF) */}
                 <div 
                   className={`${
-                    (bannerField?.position === 'top' || pdfField?.position === 'top') ? 'h-[calc(100vh-25px)] w-full' : 'h-full md:w-1/2'
+                    (bannerField?.position === 'top' || pdfField?.position === 'top' || carouselField?.position === 'top') ? 'h-[calc(100vh-25px)] w-full' : 'h-full md:w-1/2'
                   } relative`} 
                   style={{ height: 'calc(100vh - 25px)' }} // Component height 25px less than screen height
                 >
@@ -283,9 +283,67 @@ const PublicForm = () => {
                       </label>
                     </div>
                   ) : null}
+                  
+                  {/* Carousel Component Display */}
+                  {carouselField && carouselField.images && carouselField.images.length > 0 ? (
+                    <div className="w-full h-full">
+                      <ImageCarousel 
+                        images={carouselField.images}
+                        autoAdvanceTime={carouselField.autoAdvanceTime || 20000}
+                        showDots={carouselField.showDots !== false}
+                        maxImages={carouselField.maxImages || 8}
+                        className="w-full h-full"
+                      />
+                    </div>
+                  ) : carouselField && (!carouselField.images || carouselField.images.length === 0) ? (
+                    <div className="w-full h-full flex flex-col items-center justify-center bg-gray-50 border-2 border-dashed border-gray-300 rounded-md p-6">
+                      <Icons.CarouselUpload />
+                      <p className="mt-2 text-sm text-gray-500">{carouselField?.label || 'Image Carousel'}</p>
+                      <p className="text-xs text-gray-400 mt-1">{carouselField?.helperText || 'Upload PNG images to view carousel'}</p>
+                      <label className="mt-4 cursor-pointer px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500">
+                        Upload Images
+                        <input 
+                          type="file" 
+                          className="sr-only" 
+                          accept="image/png"
+                          multiple
+                          onChange={(e) => {
+                            const files = Array.from(e.target.files);
+                            if (files.length > 0) {
+                              const validImages = [];
+                              files.forEach(file => {
+                                if (file.type === 'image/png' && file.size <= 5 * 1024 * 1024) {
+                                  const reader = new FileReader();
+                                  reader.onload = (event) => {
+                                    const newImage = {
+                                      src: event.target.result,
+                                      preview: event.target.result,
+                                      dataUrl: event.target.result,
+                                      fileName: file.name,
+                                      fileType: file.type,
+                                      alt: `Carousel image`
+                                    };
+                                    validImages.push(newImage);
+                                    
+                                    if (validImages.length === files.length) {
+                                      setFormValues(prev => ({
+                                        ...prev,
+                                        [carouselField.id]: validImages
+                                      }));
+                                    }
+                                  };
+                                  reader.readAsDataURL(file);
+                                }
+                              });
+                            }
+                          }}
+                        />
+                      </label>
+                    </div>
+                  ) : null}
                 </div>
                 {/* Form Fields (Right side) */}
-                <div className={`space-y-6 p-4 ${(bannerField?.position === 'top' || pdfField?.position === 'top') ? 'w-full' : 'md:w-1/2'}`} style={{ overflowY: 'auto', height: 'calc(100vh - 25px)' }}>
+                <div className={`space-y-6 p-4 ${(bannerField?.position === 'top' || pdfField?.position === 'top' || carouselField?.position === 'top') ? 'w-full' : 'md:w-1/2'}`} style={{ overflowY: 'auto', height: 'calc(100vh - 25px)' }}>
                   <Card className="mb-4 border-none shadow-none">
                     <CardHeader>
                       <div className="flex items-center justify-between flex-wrap w-full">
