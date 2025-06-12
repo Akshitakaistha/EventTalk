@@ -89,7 +89,12 @@ const ImageCarousel = ({
         {limitedImages.length > 1 && (
           <>
             <button
-              onClick={goToPrevious}
+              type="button"
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                goToPrevious();
+              }}
               className="absolute left-4 top-1/2 transform -translate-y-1/2 bg-black bg-opacity-50 hover:bg-opacity-70 text-white p-2 rounded-full transition-all duration-200 z-10"
               aria-label="Previous image"
             >
@@ -98,7 +103,12 @@ const ImageCarousel = ({
               </svg>
             </button>
             <button
-              onClick={goToNext}
+              type="button"
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                goToNext();
+              }}
               className="absolute right-4 top-1/2 transform -translate-y-1/2 bg-black bg-opacity-50 hover:bg-opacity-70 text-white p-2 rounded-full transition-all duration-200 z-10"
               aria-label="Next image"
             >
@@ -116,13 +126,7 @@ const ImageCarousel = ({
           </div>
         )}
 
-        {/* Auto-play indicator */}
-        {limitedImages.length > 1 && isAutoPlaying && (
-          <div className="absolute top-4 left-4 bg-green-500 bg-opacity-70 text-white px-2 py-1 rounded-full text-xs z-10 flex items-center">
-            <div className="w-2 h-2 bg-white rounded-full mr-1 animate-pulse"></div>
-            AUTO
-          </div>
-        )}
+
       </div>
 
       {/* Pagination Dots */}
@@ -131,7 +135,12 @@ const ImageCarousel = ({
           {limitedImages.map((_, index) => (
             <button
               key={index}
-              onClick={() => goToSlide(index)}
+              type="button"
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                goToSlide(index);
+              }}
               className={`w-3 h-3 rounded-full transition-all duration-200 ${
                 index === currentIndex
                   ? 'bg-white shadow-lg'
