@@ -51,17 +51,28 @@ const PropertyEditor = () => {
       return;
     }
 
-    files.forEach(file => {
+    // Validate all files first
+    const validFiles = files.filter(file => {
       if (file.type !== 'image/png') {
         alert('Only PNG images are allowed');
-        return;
+        return false;
       }
       
       if (file.size > (activeField.maxFileSize || 5) * 1024 * 1024) {
         alert(`File size must be less than ${activeField.maxFileSize || 5}MB`);
-        return;
+        return false;
       }
+      
+      return true;
+    });
 
+    if (validFiles.length === 0) return;
+
+    // Process all valid files and collect the results
+    const newImages = [];
+    let processedCount = 0;
+
+    validFiles.forEach((file, index) => {
       const reader = new FileReader();
       reader.onload = (event) => {
         const newImage = {
@@ -70,12 +81,18 @@ const PropertyEditor = () => {
           dataUrl: event.target.result,
           fileName: file.name,
           fileType: file.type,
-          alt: `Carousel image ${currentImages.length + 1}`
+          alt: `Carousel image ${currentImages.length + index + 1}`
         };
         
-        updateFieldProperties(activeField.id, {
-          images: [...currentImages, newImage]
-        });
+        newImages.push(newImage);
+        processedCount++;
+        
+        // Update only when all files are processed
+        if (processedCount === validFiles.length) {
+          updateFieldProperties(activeField.id, {
+            images: [...currentImages, ...newImages]
+          });
+        }
       };
       reader.readAsDataURL(file);
     });
