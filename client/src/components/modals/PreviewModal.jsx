@@ -103,7 +103,7 @@ const PreviewModal = ({ onClose, formFields, formName }) => {
         {/* Main section */}
       <div className="w-full mx-auto px-4 py-8 sm:px-6 lg:px-8">
         <div className="bg-white shadow-md rounded-lg w-full border border-gray-200" style={{ overflow:'auto' }}>
-        {(bannerField?.position === 'top') && (
+        {(bannerField?.position === 'top' || pdfField?.position === 'top') && (
             <Card className="mb-4 border-none shadow-none">
                 <CardHeader>
                   <CardTitle className="text-center">Form Preview: {formName} </CardTitle>
@@ -114,16 +114,17 @@ const PreviewModal = ({ onClose, formFields, formName }) => {
                   </Card>
                   )}  
           <form onSubmit={handleSubmit} className="w-full h-full flex flex-col">
-            {hasBannerComponent ? (
-              <div className={`${bannerField?.position === 'top' ? 'w-full flex-col px-5 py-3' : 'w-full'} flex h-full relative`}>
-              {/* Banner Upload Area (Left side) */}
+            {hasBannerComponent || hasPdfComponent ? (
+              <div className={`${(bannerField?.position === 'top' || pdfField?.position === 'top') ? 'w-full flex-col px-5 py-3' : 'w-full'} flex h-full relative`}>
+              {/* Special Component Display Area (Banner or PDF) */}
               <div 
                 className={`${
-                  bannerField?.position === 'top' ? 'h-[calc(100vh-25px)] w-full' : 'h-full md:w-1/2'
+                  (bannerField?.position === 'top' || pdfField?.position === 'top') ? 'h-[calc(100vh-25px)] w-full' : 'h-full md:w-1/2'
                 } relative`} 
-                style={{ height: 'calc(100vh - 25px)' }} // Banner height 25px less than screen height
+                style={{ height: 'calc(100vh - 25px)' }} // Component height 25px less than screen height
               >
-                  {(bannerField?.bannerUrl || formValues[bannerField?.id]?.preview) ? (
+                  {/* Banner Component Display */}
+                  {bannerField && (bannerField?.bannerUrl || formValues[bannerField?.id]?.preview) ? (
                     <div className="w-full h-full">
                       <img 
                         src={formValues[bannerField?.id]?.preview || bannerField.bannerUrl} 
@@ -174,7 +175,7 @@ const PreviewModal = ({ onClose, formFields, formName }) => {
                         </div>
                       )}
                     </div>
-                  ) : (
+                  ) : bannerField && !bannerField?.bannerUrl && !formValues[bannerField?.id]?.preview ? (
                     <div className="bg-gray-50 border-b md:border-r border-gray-200 h-full p-6 flex flex-col items-center justify-center">
                     <Icons.BannerUpload className="h-12 w-12 text-gray-400" />
                     <p className="mt-2 text-sm text-gray-500">{bannerField?.label || 'Event Banner'}</p>
@@ -229,11 +230,113 @@ const PreviewModal = ({ onClose, formFields, formName }) => {
                       />
                     </div>
                   </div>
-                )}
+                ) : null}
+                
+                {/* PDF Component Display */}
+                {pdfField && (pdfField?.pdfUrl || formValues[pdfField?.id]?.preview) ? (
+                  <div className="w-full h-full">
+                    <iframe 
+                      src={formValues[pdfField?.id]?.preview || pdfField.pdfUrl} 
+                      title="PDF Preview" 
+                      className="w-full h-full border-0 rounded-md"
+                      style={{ minHeight: 'calc(100vh - 25px)' }}
+                    />
+                    {pdfField?.canUpload && (
+                      <div className="absolute bottom-0 right-0 m-4">
+                        <input
+                          type="button"
+                          value="Change PDF"
+                          className="cursor-pointer px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 bg-opacity-90"
+                          onClick={(e) => {
+                            e.preventDefault();
+                            const fileInput = document.getElementById(`change-pdf-${pdfField.id}`);
+                            if (fileInput) {
+                              fileInput.click();
+                            } else {
+                              console.error(`Could not find file input with id change-pdf-${pdfField.id}`);
+                            }
+                          }}
+                        />
+                        <input 
+                          id={`change-pdf-${pdfField.id}`}
+                          type="file" 
+                          className="hidden" 
+                          accept="application/pdf"
+                          onChange={(e) => {
+                            const file = e.target.files?.[0];
+                            if (file) {
+                              const reader = new FileReader();
+                              reader.onload = (event) => {
+                                if (event.target?.result) {
+                                  const fileData = {
+                                    file: file,
+                                    fileName: file.name,
+                                    fileType: file.type,
+                                    preview: event.target.result,
+                                    dataUrl: event.target.result
+                                  };
+                                  handleFormValueChange(pdfField.id, fileData);
+                                }
+                              };
+                              reader.readAsDataURL(file);
+                            }
+                          }} 
+                        />
+                      </div>
+                    )}
+                  </div>
+                ) : pdfField && !pdfField?.pdfUrl && !formValues[pdfField?.id]?.preview ? (
+                  <div className="bg-gray-50 border-b md:border-r border-gray-200 h-full p-6 flex flex-col items-center justify-center">
+                    <Icons.PdfUpload className="h-12 w-12 text-gray-400" />
+                    <p className="mt-2 text-sm text-gray-500">{pdfField?.label || 'PDF Document'}</p>
+                    <p className="text-xs text-gray-400 mt-1">{pdfField?.helperText || 'This form includes a PDF document'}</p>
+                    <div className="mt-4">
+                      <input 
+                        type="button"
+                        value="Upload PDF"
+                        className="cursor-pointer px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50"
+                        onClick={(e) => {
+                          e.preventDefault();
+                          const fileInput = document.getElementById(`upload-pdf-${pdfField.id}`);
+                          if (fileInput) {
+                            fileInput.click();
+                          } else {
+                            console.error(`Could not find file input with id upload-pdf-${pdfField.id}`);
+                          }
+                        }}
+                      />
+                      <input 
+                        id={`upload-pdf-${pdfField.id}`}
+                        type="file" 
+                        className="hidden" 
+                        accept="application/pdf"
+                        onChange={(e) => {
+                          const file = e.target.files?.[0];
+                          if (file) {
+                            const reader = new FileReader();
+                            reader.onload = (event) => {
+                              if (event.target?.result) {
+                                const fileData = {
+                                  file: file,
+                                  fileName: file.name,
+                                  fileType: file.type,
+                                  preview: event.target.result,
+                                  dataUrl: event.target.result
+                                };
+                                handleFormValueChange(pdfField.id, fileData);
+                              }
+                            };
+                            reader.readAsDataURL(file);
+                          }
+                        }} 
+                      />
+                    </div>
+                  </div>
+                ) : null}
               </div>
       
-              <div className={`space-y-6 p-4 ${bannerField.position === 'top' ? 'w-full' : 'md:w-1/2'}`} style={{ overflowY: 'auto', height: 'calc(100vh - 25px)' }}>
-                  {(bannerField?.position !== 'top') && (
+              <div className={`space-y-6 p-4 ${(bannerField?.position === 'top' || pdfField?.position === 'top') ? 'w-full' : 'md:w-1/2'}`} style={{ overflowY: 'auto', height: 'calc(100vh - 25px)' }}>
+                  {(bannerField?.position !== 'top' && pdfField?.position !== 'top') && (
                         <Card className="mb-4 border-none shadow-none">
                         <CardHeader>
                           <CardTitle className="text-center">Form Preview: {formName} </CardTitle>
