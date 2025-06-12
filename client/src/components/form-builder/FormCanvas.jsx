@@ -70,25 +70,26 @@ const FormCanvas = () => {
   return (
     <div className="flex-1 overflow-y-auto bg-gray-50 relative">
       <div className="p-6 max-w-4xl mx-auto">
-        {hasBannerComponent || hasPdfComponent ? (
+        {hasBannerComponent || hasPdfComponent || hasCarouselComponent ? (
           // Special component-enabled form layout (banner or PDF)
           <div className="bg-white rounded-lg shadow-sm mb-6">
             {/* ... banner layout code unchanged ... */}
             <div className={`${
-  (bannerField?.position === 'top' || pdfField?.position === 'top')
+  (bannerField?.position === 'top' || pdfField?.position === 'top' || carouselField?.position === 'top')
     ? 'flex flex-col' 
     : 'flex flex-col md:flex-row w-full' // ensure full width for the parent container
 }`}>
   {/* Special component display area (Banner or PDF) */}
   <div 
     className={`${
-      (bannerField?.position === 'top' || pdfField?.position === 'top')
+      (bannerField?.position === 'top' || pdfField?.position === 'top' || carouselField?.position === 'top')
         ? 'h-[calc(100vh-25px)] w-full relative'
         : "flex-1 h-[calc(100vh-25px)] border-bottom border-md-0 border-md-end border-secondary position-relative"
     } relative`}
     onClick={() => {
       if (bannerField) setActiveField(bannerField.id);
       if (pdfField) setActiveField(pdfField.id);
+      if (carouselField) setActiveField(carouselField.id);
     }}
   >
     <button 
@@ -97,6 +98,7 @@ const FormCanvas = () => {
         e.stopPropagation();
         if (bannerField) deleteField(bannerField.id);
         if (pdfField) deleteField(pdfField.id);
+        if (carouselField) deleteField(carouselField.id);
       }}
     >
       <Icons.Delete />
@@ -159,10 +161,41 @@ const FormCanvas = () => {
         )}
       </div>
     )}
+    
+    {/* Carousel Component Display */}
+    {carouselField && (
+      <div className={`bg-gray-50 border-2 border-dashed ${formState.activeField === carouselField?.id ? 'border-primary-500 ring-2 ring-primary-200' : 'border-gray-300'} rounded-md p-6 flex flex-col items-center justify-center h-full cursor-pointer relative`}>
+        {carouselField?.images && carouselField.images.length > 0 ? (
+          <div className="w-full h-full">
+            <ImageCarousel 
+              images={carouselField.images}
+              autoAdvanceTime={carouselField.autoAdvanceTime || 20000}
+              showDots={carouselField.showDots}
+              maxImages={carouselField.maxImages || 8}
+              className="w-full h-full"
+            />
+            <div className="absolute inset-0 bg-black bg-opacity-20 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity duration-200">
+              <button className="px-4 py-2 bg-white rounded-md shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-50">
+                Add More Images
+              </button>
+            </div>
+          </div>
+        ) : (
+          <>
+            <Icons.CarouselUpload />
+            <p className="mt-2 text-sm text-gray-500">Upload carousel images</p>
+            <p className="text-xs text-gray-400 mt-1">PNG images up to 5MB each (max 8 images)</p>
+            <button className="mt-4 px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500">
+              Upload Images
+            </button>
+          </>
+        )}
+      </div>
+    )}
   </div>
 
   <div className={`${
-    (bannerField?.position === 'top' || pdfField?.position === 'top')
+    (bannerField?.position === 'top' || pdfField?.position === 'top' || carouselField?.position === 'top')
       ? 'h-[350px] w-full relative'
       : 'flex-1 h-100 overflow-auto position-relative' // make this flexible as well
   } p-4`}>
@@ -174,7 +207,7 @@ const FormCanvas = () => {
       onDragLeave={handleDragLeave}
       onDrop={handleDrop}
     >
-      {formState.fields.filter(field => field.type !== 'bannerUpload' && field.type !== 'pdfUpload').map((field, index) => (
+      {formState.fields.filter(field => field.type !== 'bannerUpload' && field.type !== 'pdfUpload' && field.type !== 'carouselUpload').map((field, index) => (
         <div 
           key={field.id} 
           className={`form-field-container ${field.gridColumn === 'half' ? 'col-span-1' : 'col-span-2'} w-full`}
