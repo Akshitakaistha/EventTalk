@@ -2,6 +2,7 @@ import React, { useRef } from 'react';
 import { useFormBuilder } from '@/contexts/FormBuilderContext';
 import FormComponents from './FormComponents';
 import { Icons } from '@/components/ui/ui-icons';
+import ImageCarousel from '@/components/ui/image-carousel';
 
 const FormCanvas = () => {
   const { 
@@ -13,11 +14,13 @@ const FormCanvas = () => {
     deleteField,
     hasBannerComponent,
     hasPdfComponent,
+    hasCarouselComponent,
     setFormState
   } = useFormBuilder();
 
   const bannerField = formState.fields.find(field => field.type === 'bannerUpload');
   const pdfField = formState.fields.find(field => field.type === 'pdfUpload');
+  const carouselField = formState.fields.find(field => field.type === 'carouselUpload');
 
   const dropPlaceholderRef = useRef(null);
   const formCanvasRef = useRef(null);

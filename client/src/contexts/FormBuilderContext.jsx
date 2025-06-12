@@ -198,6 +198,9 @@ export const FormBuilderProvider = ({ children }) => {
   
   // Check if the form has a PDF component
   const hasPdfComponent = formState.fields.some(field => field.type === 'pdfUpload');
+  
+  // Check if the form has a carousel component
+  const hasCarouselComponent = formState.fields.some(field => field.type === 'carouselUpload');
 
   // Add new field to the form
   const addField = (fieldType) => {
@@ -216,6 +219,11 @@ export const FormBuilderProvider = ({ children }) => {
     
     // Special handling for pdfUpload - only allow one per form
     if (fieldType === 'pdfUpload' && hasPdfComponent) {
+      return;
+    }
+    
+    // Special handling for carouselUpload - only allow one per form
+    if (fieldType === 'carouselUpload' && hasCarouselComponent) {
       return;
     }
 
@@ -301,6 +309,7 @@ export const FormBuilderProvider = ({ children }) => {
     setFormState,
     hasBannerComponent,
     hasPdfComponent,
+    hasCarouselComponent,
     addField,
     getActiveField,
     setActiveField,
