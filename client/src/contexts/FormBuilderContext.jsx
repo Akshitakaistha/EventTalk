@@ -167,6 +167,23 @@ const initialFieldStates = {
     canUpload: true,
     canDownload: true,
     canView: true
+  },
+  carouselUpload: {
+    type: 'carouselUpload',
+    label: 'Carousel Upload',
+    helperText: 'PNG images up to 5MB each (max 8 images)',
+    required: false,
+    allowedTypes: 'image/png',
+    fileTypeText: 'PNG up to 5MB each (max 8 images)',
+    maxFileSize: 5,
+    maxImages: 8,
+    autoAdvanceTime: 20000,
+    position: 'left',
+    images: [],
+    canUpload: true,
+    canDownload: true,
+    canView: true,
+    showDots: true
   }
 };
 
