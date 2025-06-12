@@ -5,6 +5,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { useToast } from '@/hooks/use-toast';
 import FormComponents from '@/components/form-builder/FormComponents';
 import { Icons } from '@/components/ui/ui-icons';
+import ImageCarousel from '@/components/ui/image-carousel';
 
 const PublicForm = () => {
   const { id } = useParams();
@@ -171,12 +172,14 @@ const PublicForm = () => {
     );
   }
   
-  // Check if we have banner or PDF components
+  // Check if we have banner, PDF, or carousel components
   const hasBannerComponent = form?.schema.fields.some(field => field.type === 'bannerUpload');
   const hasPdfComponent = form?.schema.fields.some(field => field.type === 'pdfUpload');
+  const hasCarouselComponent = form?.schema.fields.some(field => field.type === 'carouselUpload');
   const bannerField = form?.schema.fields.find(field => field.type === 'bannerUpload');
   const pdfField = form?.schema.fields.find(field => field.type === 'pdfUpload');
-  const regularFields = form?.schema.fields.filter(field => field.type !== 'bannerUpload' && field.type !== 'pdfUpload') || [];
+  const carouselField = form?.schema.fields.find(field => field.type === 'carouselUpload');
+  const regularFields = form?.schema.fields.filter(field => field.type !== 'bannerUpload' && field.type !== 'pdfUpload' && field.type !== 'carouselUpload') || [];
   
   return (
     <div className="min-h-screen bg-gray-50 py-2 px-2 sm:px-6 lg:px-8">
