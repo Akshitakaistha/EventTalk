@@ -20,7 +20,8 @@ const ComponentsPanel = () => {
     { type: 'mobileWithCheckbox', label: 'Mobile with Checkbox', icon: <Icons.Number /> },
     { type: 'mediaUpload', label: 'Audio/Video Upload', icon: <Icons.MediaUpload /> },
     { type: 'resumeUpload', label: 'Resume Upload', icon: <Icons.FileUpload />},
-    { type: 'bannerUpload', label: 'Banner Upload', icon: <Icons.BannerUpload /> }
+    { type: 'bannerUpload', label: 'Banner Upload', icon: <Icons.BannerUpload /> },
+    { type: 'pdfUpload', label: 'PDF Upload', icon: <Icons.PdfUpload /> }
   ];
   
   const handleDragStart = (e, component) => {
@@ -46,7 +47,7 @@ const ComponentsPanel = () => {
           <div
             key={component.type}
             className={`form-component bg-white border border-gray-200 rounded-md p-3 shadow-sm cursor-move hover:border-primary-400 ${
-              component.type === 'bannerUpload' ? 'bg-primary-50 border-primary-300' : ''
+              component.type === 'bannerUpload' || component.type === 'pdfUpload' ? 'bg-primary-50 border-primary-300' : ''
             }`}
             draggable="true"
             data-type={component.type}
@@ -55,11 +56,11 @@ const ComponentsPanel = () => {
             onClick={() => handleComponentClick(component)}
           >
             <div className="flex items-center">
-              <div className={`mr-2 ${component.type === 'bannerUpload' ? 'text-primary-500' : 'text-gray-400'}`}>
+              <div className={`mr-2 ${component.type === 'bannerUpload' || component.type === 'pdfUpload' ? 'text-primary-500' : 'text-gray-400'}`}>
                 {component.icon}
               </div>
               <span className={`text-sm ${
-                component.type === 'bannerUpload' 
+                component.type === 'bannerUpload' || component.type === 'pdfUpload'
                   ? 'text-primary-700 font-medium' 
                   : 'text-gray-700'
               }`}>

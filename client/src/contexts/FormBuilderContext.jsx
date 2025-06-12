@@ -153,6 +153,20 @@ const initialFieldStates = {
     canUpload: true,
     canDownload: true,
     canView: true
+  },
+  pdfUpload: {
+    type: 'pdfUpload',
+    label: 'PDF Upload',
+    helperText: 'PDF up to 10MB',
+    required: false,
+    allowedTypes: 'application/pdf',
+    fileTypeText: 'PDF up to 10MB',
+    maxFileSize: 10,
+    position: 'left',
+    pdfUrl: '',
+    canUpload: true,
+    canDownload: true,
+    canView: true
   }
 };
 
@@ -164,6 +178,9 @@ export const FormBuilderProvider = ({ children }) => {
 
   // Check if the form has a banner component
   const hasBannerComponent = formState.fields.some(field => field.type === 'bannerUpload');
+  
+  // Check if the form has a PDF component
+  const hasPdfComponent = formState.fields.some(field => field.type === 'pdfUpload');
 
   // Add new field to the form
   const addField = (fieldType) => {
