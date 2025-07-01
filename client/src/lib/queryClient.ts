@@ -47,12 +47,24 @@ export async function apiRequest(
     };
     console.log('Full request details:', requestDetails);
     
+    // const res = await fetch(fullUrl, {
+    //   method,
+    //   headers,
+    //   body: data ? JSON.stringify(data) : undefined,
+    //   credentials: "include",
+    // });
+
     const res = await fetch(fullUrl, {
-      method,
-      headers,
-      body: data ? JSON.stringify(data) : undefined,
-      credentials: "include",
-    });
+  method,
+  headers: {
+    ...headers,
+    'Cache-Control': 'no-cache',
+    'Pragma': 'no-cache',
+    'Expires': '0'
+  },
+  body: data ? JSON.stringify(data) : undefined,
+  credentials: "include",
+});
     
     if (!res.ok) {
       const errorText = await res.text().catch(() => 'No error text available');
