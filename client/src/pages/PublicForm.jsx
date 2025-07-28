@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { useParams } from 'wouter';
 import { Button } from '@/components/ui/button';
@@ -182,8 +183,10 @@ const PublicForm = () => {
   const regularFields = form?.schema.fields.filter(field => field.type !== 'bannerUpload' && field.type !== 'pdfUpload' && field.type !== 'carouselUpload') || [];
   
   return (
-    <div className="min-h-screen bg-gray-50 py-2 px-2 sm:px-6 lg:px-8">
+    // <div className="min-h-screen bg-gray-50 py-2 px-2 sm:px-6 lg:px-8">
 {/*       <div className="min-h-screen bg-gray-50 py-2 px-[12rem] lg:px-[14rem]"> */}
+      <div className={`${hasBannerComponent ? 'min-h-screen bg-gray-50 py-12 px-4 sm:px-6 lg:px-8' : 'min-h-screen bg-gray-50 py-2 px-[8rem] sm:px-[10rem] lg:px-[12rem]'}`}>
+
       <div className="max-w-full">
         <form onSubmit={handleSubmit} className="flex flex-col h-[calc(100vh-30px)]">
           {hasBannerComponent || hasPdfComponent || hasCarouselComponent ? (
@@ -447,7 +450,7 @@ const PublicForm = () => {
             </div>
           ) : (
             // Standard form layout (single column)
-            <Card className="min-h-screen bg-gray-50 py-2 px-[12rem] lg:px-[14rem]" >
+            <Card>
               <CardContent className="p-6">
                 <div className="space-y-6">
                   <Card className="mb-4 border-none shadow-none">
