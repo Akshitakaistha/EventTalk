@@ -182,7 +182,8 @@ const PublicForm = () => {
   const regularFields = form?.schema.fields.filter(field => field.type !== 'bannerUpload' && field.type !== 'pdfUpload' && field.type !== 'carouselUpload') || [];
   
   return (
-    <div className="min-h-screen bg-gray-50 py-2 px-2 sm:px-6 lg:px-8">
+    // <div className="min-h-screen bg-gray-50 py-2 px-2 sm:px-6 lg:px-8">
+      <div className="min-h-screen bg-gray-50 py-2 px-[12rem] lg:px-[14rem]">
       <div className="max-w-full">
         <form onSubmit={handleSubmit} className="flex flex-col h-[calc(100vh-30px)]">
           {hasBannerComponent || hasPdfComponent || hasCarouselComponent ? (
