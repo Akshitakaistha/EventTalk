@@ -16,7 +16,7 @@ import IndividualFormList from "@/pages/IndividualFormList";
 import { useAuth, AuthProvider } from "./contexts/AuthContext";
 import { FormBuilderProvider } from "./contexts/FormBuilderContext";
 
-export const SERVER_URL = 'http://localhost:5000';
+export const SERVER_URL = 'http://localhost:5001';
 
 function PrivateRoute({ component }: { component: React.ReactNode }) {
   try {
