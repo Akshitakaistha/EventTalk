@@ -9,10 +9,10 @@ app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ extended: false, limit: '50mb' }));
 app.disable('etag');
 
-// app.use(cors({
-//   origin: 'http://139.59.22.82:7000', // Allow your deployed frontend
-//   credentials: true
-// }));
+app.use(cors({
+  origin: 'http://139.59.22.82:7000', // Allow your deployed frontend
+  credentials: true
+}));
 app.use(cors());
 
 app.use((req, res, next) => {
@@ -68,8 +68,8 @@ app.use((req, res, next) => {
   // ALWAYS serve the app on port 5000
   // this serves both the API and the client.
   // It is the only port that is not firewalled.
-  const port = 5000;
-  app.listen(5000, '127.0.0.1', () => {
-    console.log("Server running on port 5000");
+  const port = 6000;
+  app.listen(6000, '127.0.0.1', () => {
+    console.log("Server running on port 6000");
   });
 })();
