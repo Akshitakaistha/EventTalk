@@ -26,7 +26,7 @@ async function throwIfResNotOk(res: Response) {
 // };
 
 const getBaseUrl = () => {
-  return "http://139.59.22.82:6000";
+  return "http://139.59.22.82:4000";
 };
 
 export async function apiRequest(
