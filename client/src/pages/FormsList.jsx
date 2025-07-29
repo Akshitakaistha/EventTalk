@@ -187,7 +187,7 @@ const FormsList = () => {
                   variant="outline" size="sm" 
                   className="flex-1" 
                   onClick={() => {
-                    const url = `${window.location.origin}/public-form/${form._id}`;
+                    const url = `http://139.59.22.82:4000/public-form/${form._id}`;
                   
                     if (navigator.clipboard && navigator.clipboard.writeText) {
                       navigator.clipboard.writeText(url)
