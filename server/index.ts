@@ -13,7 +13,7 @@ app.use(cors({
   origin: 'http://139.59.22.82:7000', // Allow your deployed frontend
   credentials: true
 }));
-app.use(cors());
+
 
 app.use((req, res, next) => {
   const start = Date.now();
