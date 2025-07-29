@@ -69,7 +69,7 @@ app.use((req, res, next) => {
   // this serves both the API and the client.
   // It is the only port that is not firewalled.
   const port = 4000;
-  app.listen(4000, '127.0.0.1', () => {
+  app.listen(4000, '0.0.0.0', () => {
     console.log("Server running on port 4000");
   });
 })();
