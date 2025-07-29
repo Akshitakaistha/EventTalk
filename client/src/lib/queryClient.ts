@@ -16,7 +16,7 @@ const getBaseUrl = () => {
   const host = window.location.host; 
   // If running on localhost, the server might be on a different port than the client
   if (host.includes('localhost') || host.includes('127.0.0.1')) {
-    return `${protocol}//${host.split(':')[0]}:5000`;
+    return `${protocol}//${host.split(':')[0]}:6000`;
   } 
   // Otherwise, use the same host
   return `${protocol}//${host}`;
